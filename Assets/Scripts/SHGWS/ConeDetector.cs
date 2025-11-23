@@ -1,6 +1,10 @@
 using UnityEngine;
 using Oculus.Interaction;
 using System.Collections.Generic;
+using System.Linq;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 /// <summary>
 /// 특정 지점에서 원뿔 형태로 객체를 감지하는 기능을 수행하는 클래스.
@@ -8,105 +12,197 @@ using System.Collections.Generic;
 /// </summary>
 public class ConeDetector : MonoBehaviour
 {
-    [Header("Cone Parameters")]
-    [SerializeField] 
-    private RayInteractor _rayInteractor; // Ray Interactor 가져오기.
-    [Tooltip("원뿔의 감지 범위 (반지름)")]
-    public float range = 10f;
+// --- 설정 가능한 파라미터 ---
+    [Header("감지 설정")]
+    public float detectionRadius = 10f; // 원뿔의 최대 반지름 (OverlapSphere의 반지름)
+    public float detectionAngle = 5f;  // 원뿔의 반각 (전체 각도는 이 값의 2배)
+    public LayerMask targetMask;        // 감지할 오브젝트들이 속한 레이어 마스크
 
-    [Tooltip("원뿔의 전체 각도 (Degrees)")]
-    [Range(0, 360)]
-    public float angle = 90f;
+    // --- 결과 ---
+    [Header("감지 결과")]
+    public List<GameObject> detectedTargets = new List<GameObject>();
 
-    [Header("Targeting")]
-    [Tooltip("감지할 객체의 레이어 마스크")]
-    public LayerMask targetLayer;
+    // --- 디버그 시각화 (선택 사항) ---
+    [Header("디버그 시각화")]
+    public Color coneColor = new Color(1f, 0.5f, 0f, 0.3f); // 원뿔 색상
+    public bool drawGizmos = true;
 
-    private List<GameObject> _detectedObjects = new List<GameObject>();
-    private Vector3 _origin; // 감지 시작점
-    private Vector3 _forward; // 감지 방향
-    public IReadOnlyList<GameObject> DetectedObjects => _detectedObjects;
+    private Vector3 _rayOrigin;
+    private Vector3 _rayForward;
     
-    void Start()
+    // 머티리얼 변경을 위한 변수
+    private Dictionary<Renderer, Material[]> _originalMaterials = new Dictionary<Renderer, Material[]>();
+    private Material _redMaterial;
+
+    void Awake()
     {
-        _origin = _rayInteractor.Origin;
-        _forward = _rayInteractor.Forward;
-    }
-    void Update()
-    {
-        FindObjectsInCone();
+        // 감지된 오브젝트에 적용할 공유 빨간색 머티리얼 생성
+        _redMaterial = new Material(Shader.Find("Standard"));
+        _redMaterial.color = Color.red;
     }
 
     /// <summary>
-    /// 원뿔 범위 내의 객체를 탐색하고 리스트를 업데이트합니다.
+    /// 전방 원뿔 범위 내의 모든 게임 오브젝트를 감지합니다.
     /// </summary>
-    public void FindObjectsInCone()
+    public void DetectTargetsInCone()
     {
-        _detectedObjects.Clear();
+        _rayOrigin = transform.position;
+        _rayForward = transform.forward;
 
-        // 1. 광역 단계: OverlapSphere로 잠재적 객체 수집
-        Collider[] colliders = Physics.OverlapSphere(_origin, range, targetLayer);
+        // 현재 프레임에서 감지된 모든 타겟을 찾습니다.
+        var currentDetections = new List<GameObject>();
+        Collider[] hitColliders = Physics.OverlapSphere(_rayOrigin, detectionRadius, targetMask);
 
-        if (colliders.Length == 0) return;
-        
-        // 원뿔의 절반 각도를 미리 계산 (코사인 계산용)
-        float halfAngleRad = (angle / 2f) * Mathf.Deg2Rad;
-        float coneDotThreshold = Mathf.Cos(halfAngleRad);
-
-        // 원뿔의 정면 방향 벡터
-        Vector3 coneDirection = _forward;
-
-        foreach (Collider col in colliders)
+        foreach (var hitCollider in hitColliders)
         {
-            // 2. 정밀 단계: 벡터 내적을 이용한 필터링
-            Vector3 vectorToTarget = (col.transform.position - _origin).normalized;
+            if (hitCollider.gameObject == gameObject) continue;
 
-            // 내적 값이 임계치보다 크면 원뿔 내에 존재
-            if (Vector3.Dot(coneDirection, vectorToTarget) > coneDotThreshold)
+            Vector3 directionToTarget = (hitCollider.transform.position - _rayOrigin).normalized;
+            if (_rayForward == Vector3.zero || Vector3.Angle(_rayForward, directionToTarget) <= detectionAngle)
             {
-                // 필요하다면, Raycast를 통해 시야를 가리는 장애물이 없는지 추가로 확인할 수 있습니다.
-                // if (!Physics.Raycast(transform.position, vectorToTarget, Vector3.Distance(transform.position, col.transform.position), obstacleLayer))
-                // {
-                //    _detectedObjects.Add(col.gameObject);
-                // }
-                _detectedObjects.Add(col.gameObject);
-                Debug.LogWarning("Detected: " + col.gameObject.name);
+                currentDetections.Add(hitCollider.gameObject);
             }
+        }
+
+        // 이전 프레임과 비교하여 새로 감지된 타겟과 더 이상 감지되지 않는 타겟을 찾습니다.
+        var newlyDetected = currentDetections.Except(detectedTargets).ToList();
+        var noLongerDetected = detectedTargets.Except(currentDetections).ToList();
+
+        // 더 이상 감지되지 않는 타겟의 머티리얼을 원래대로 되돌립니다.
+        foreach (var obj in noLongerDetected)
+        {
+            RevertMaterial(obj);
+        }
+
+        // 새로 감지된 타겟의 머티리얼을 빨간색으로 변경합니다.
+        foreach (var obj in newlyDetected)
+        {
+            ApplyRedMaterial(obj);
+        }
+
+        // 감지된 타겟 리스트를 현재 상태로 업데이트합니다.
+        detectedTargets = currentDetections;
+    }
+    
+    /// <summary>
+    /// 지정된 게임 오브젝트의 머티리얼을 빨간색으로 변경합니다.
+    /// </summary>
+    void ApplyRedMaterial(GameObject obj)
+    {
+        Renderer renderer = obj.GetComponent<Renderer>();
+        if (renderer == null) return;
+
+        // 원본 머티리얼을 아직 저장하지 않았다면 저장합니다.
+        if (!_originalMaterials.ContainsKey(renderer))
+        {
+            _originalMaterials[renderer] = renderer.materials;
+        }
+
+        // 모든 머티리얼을 빨간색으로 교체하기 위한 새 배열을 생성합니다.
+        var newMaterials = new Material[renderer.materials.Length];
+        for (int i = 0; i < newMaterials.Length; i++)
+        {
+            newMaterials[i] = _redMaterial;
+        }
+        renderer.materials = newMaterials;
+    }
+
+    /// <summary>
+    /// 지정된 게임 오브젝트의 머티리얼을 원래 상태로 되돌립니다.
+    /// </summary>
+    void RevertMaterial(GameObject obj)
+    {
+        Renderer renderer = obj.GetComponent<Renderer>();
+        if (renderer != null && _originalMaterials.ContainsKey(renderer))
+        {
+            renderer.materials = _originalMaterials[renderer];
+            _originalMaterials.Remove(renderer);
         }
     }
 
-    /// <summary>
-    /// 에디터에서 원뿔 범위를 시각적으로 표시하기 위한 Gizmo
-    /// </summary>
+    // 스크립트가 비활성화되거나 오브젝트가 파괴될 때 호출됩니다.
+    void OnDisable()
+    {
+        // 모든 감지된 타겟의 머티리얼을 원래대로 되돌립니다.
+        foreach (var obj in detectedTargets)
+        {
+            RevertMaterial(obj);
+        }
+        detectedTargets.Clear();
+        _originalMaterials.Clear();
+    }
+
+
+    // 예시: Update 함수에서 매 프레임 감지 함수를 호출
+    void Update()
+    {
+        DetectTargetsInCone();
+        // 감지된 오브젝트 리스트를 활용하는 코드를 여기에 작성합니다.
+        // 예: Debug.Log($"감지된 오브젝트 수: {detectedTargets.Count}");
+    }
+    
+    // --- Unity 에디터 시각화를 위한 Gizmos (선택 사항) ---
     private void OnDrawGizmos()
     {
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(_origin, range);
+        if (!drawGizmos) return;
 
-        Vector3 forward = _forward;
-        float halfAngle = angle / 2f;
+        Vector3 origin = _rayOrigin;
+        Vector3 forward = _rayForward;
 
-        Vector3 leftRayRotation = Quaternion.AngleAxis(-halfAngle, transform.up) * forward;
-        Vector3 rightRayRotation = Quaternion.AngleAxis(halfAngle, transform.up) * forward;
-        Vector3 upRayRotation = Quaternion.AngleAxis(-halfAngle, transform.right) * forward;
-        Vector3 downRayRotation = Quaternion.AngleAxis(halfAngle, transform.right) * forward;
-
-        Gizmos.color = Color.blue;
-        Gizmos.DrawRay(_origin, leftRayRotation * range);
-        Gizmos.DrawRay(_origin, rightRayRotation * range);
-        Gizmos.DrawRay(_origin, upRayRotation * range);
-        Gizmos.DrawRay(_origin, downRayRotation * range);
-
-        // 감지된 객체들을 표시
-        Gizmos.color = Color.red;
-        if (Application.isPlaying && _detectedObjects != null)
+        if (forward == Vector3.zero)
         {
-            foreach (GameObject obj in _detectedObjects)
+            // Play 모드가 아닐 때 Editor에서 기본 값을 사용하도록 설정
+            if (!Application.isPlaying)
             {
-                if (obj != null)
-                {
-                    Gizmos.DrawLine(_origin, obj.transform.position);
-                }
+                origin = transform.position;
+                forward = transform.forward;
+            }
+            else
+            {
+                 return;
+            }
+        }
+
+        // 1. OverlapSphere의 경계 그리기 (디버깅용)
+        Gizmos.color = Color.black;
+        Gizmos.DrawWireSphere(origin, detectionRadius);
+
+        // 2. 원뿔 범위 시각화
+        Gizmos.color = coneColor;
+
+        // forward 벡터로부터 회전을 만들고, 그 회전을 바탕으로 up과 right 벡터를 구합니다.
+        // 이렇게 하면 transform.up과 transform.right에 대한 의존성이 사라집니다.
+        Quaternion orientation = Quaternion.LookRotation(forward, Vector3.up);
+        Vector3 up = orientation * Vector3.up;
+        Vector3 right = orientation * Vector3.right;
+        
+        float angle = detectionAngle;
+
+        Vector3 upDir = Quaternion.AngleAxis(angle, right) * forward;
+        Vector3 downDir = Quaternion.AngleAxis(-angle, right) * forward;
+        Vector3 leftDir = Quaternion.AngleAxis(-angle, up) * forward;
+        Vector3 rightDir = Quaternion.AngleAxis(angle, up) * forward;
+
+        Gizmos.DrawRay(origin, upDir * detectionRadius);
+        Gizmos.DrawRay(origin, downDir * detectionRadius);
+        Gizmos.DrawRay(origin, leftDir * detectionRadius);
+        Gizmos.DrawRay(origin, rightDir * detectionRadius);
+
+        // 원뿔의 밑면에 원 그리기 (Editor 전용 코드)
+#if UNITY_EDITOR
+        Handles.color = coneColor;
+        Vector3 coneBaseCenter = origin + forward * detectionRadius;
+        float coneBaseRadius = detectionRadius * Mathf.Tan(angle * Mathf.Deg2Rad);
+        Handles.DrawWireDisc(coneBaseCenter, forward, coneBaseRadius);
+#endif
+
+        // 3. 감지된 타겟 표시
+        Gizmos.color = Color.red;
+        foreach (GameObject target in detectedTargets)
+        {
+            if (target != null)
+            {
+                Gizmos.DrawSphere(target.transform.position, 0.5f);
             }
         }
     }
