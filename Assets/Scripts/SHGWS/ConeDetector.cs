@@ -12,6 +12,8 @@ using UnityEditor;
 /// </summary>
 public class ConeDetector : MonoBehaviour
 {
+    [Header("Ray Interactor")]
+    [SerializeField] private RayInteractor _rayInteractor;
 // --- 설정 가능한 파라미터 ---
     [Header("감지 설정")]
     public float detectionRadius = 10f; // 원뿔의 최대 반지름 (OverlapSphere의 반지름)
@@ -41,13 +43,17 @@ public class ConeDetector : MonoBehaviour
         _redMaterial.color = Color.red;
     }
 
+    void Start()
+    {
+        
+    }
     /// <summary>
     /// 전방 원뿔 범위 내의 모든 게임 오브젝트를 감지합니다.
     /// </summary>
     public void DetectTargetsInCone()
     {
-        _rayOrigin = transform.position;
-        _rayForward = transform.forward;
+        _rayOrigin = _rayInteractor.Origin;
+        _rayForward = _rayInteractor.Forward;
 
         // 현재 프레임에서 감지된 모든 타겟을 찾습니다.
         var currentDetections = new List<GameObject>();
@@ -71,13 +77,15 @@ public class ConeDetector : MonoBehaviour
         // 더 이상 감지되지 않는 타겟의 머티리얼을 원래대로 되돌립니다.
         foreach (var obj in noLongerDetected)
         {
-            RevertMaterial(obj);
+            MoonObject mObject = obj.GetComponent<MoonObject>();
+            if (mObject != null) mObject.SetStatus(MoonObject.MoonObjectStatus.Unselected);
         }
 
         // 새로 감지된 타겟의 머티리얼을 빨간색으로 변경합니다.
         foreach (var obj in newlyDetected)
         {
-            ApplyRedMaterial(obj);
+            MoonObject mObject = obj.GetComponent<MoonObject>();
+            if (mObject != null) mObject.SetStatus(MoonObject.MoonObjectStatus.Selected);
         }
 
         // 감지된 타겟 리스트를 현재 상태로 업데이트합니다.
