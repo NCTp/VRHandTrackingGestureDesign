@@ -1885,7 +1885,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8366057762180134587, guid: 19d4f2fc2c9a0ff448ce5354a3a95fbd, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 100.00003
+      value: 99.999954
       objectReference: {fileID: 0}
     - target: {fileID: 8742789040399109554, guid: 19d4f2fc2c9a0ff448ce5354a3a95fbd, type: 3}
       propertyPath: m_AnchorMax.y
@@ -2632,6 +2632,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _threeFingerShapeRecognizer: {fileID: 11400000, guid: 2b795f172b9e0e245a0c813022cf9995, type: 2}
+  _leftRayInteractor: {fileID: 1348236943}
+  _rightRayInteractor: {fileID: 636710464}
   LeftHand: {fileID: 8373710036113126173}
   RightHand: {fileID: 5597255070260046201}
 --- !u!114 &264817452904735139
@@ -3869,7 +3871,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8366057762180134587, guid: 19d4f2fc2c9a0ff448ce5354a3a95fbd, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 99.9999
+      value: 99.999825
       objectReference: {fileID: 0}
     - target: {fileID: 8742789040399109554, guid: 19d4f2fc2c9a0ff448ce5354a3a95fbd, type: 3}
       propertyPath: m_AnchorMax.y
