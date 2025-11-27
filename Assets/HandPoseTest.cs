@@ -30,4 +30,20 @@ public class HandPoseTest : MonoBehaviour
     {
         Debug.LogWarning("Right Thumbs Down");
     }
+    public void DebugLeftHandThreeFingersUp()
+    {
+        Debug.LogWarning("Left Three Fingers Up");
+    }
+    public void DebugLeftHandThreeFingersDown()
+    {
+        Debug.LogWarning("Left Three Fingers Down");
+    }
+    public void DebugRightHandThreeFingersUp()
+    {
+        Debug.LogWarning("Right Three Fingers Up");
+    }
+    public void DebugRightHandThreeFingersDown()
+    {
+        Debug.LogWarning("Right Three Fingers Down");
+    }
 }

@@ -144,7 +144,17 @@ public class ConeDetector : MonoBehaviour
     // 예시: Update 함수에서 매 프레임 감지 함수를 호출
     void Update()
     {
-        DetectTargetsInCone();
+        switch(_rayInteractor.State)
+        {
+            case InteractorState.Normal:
+                DetectTargetsInCone();
+                break;
+            case InteractorState.Hover:
+                DetectTargetsInCone();
+                break;
+            default:
+                break;
+        }
         // 감지된 오브젝트 리스트를 활용하는 코드를 여기에 작성합니다.
         // 예: Debug.Log($"감지된 오브젝트 수: {detectedTargets.Count}");
     }

@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 6189231785636173222}
   - component: {fileID: 4798411977950448053}
   - component: {fileID: 2751306257415463088}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: MoonObject
   m_TagString: Untagged
   m_Icon: {fileID: 0}
