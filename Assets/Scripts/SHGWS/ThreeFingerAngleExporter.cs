@@ -69,6 +69,7 @@ public class ThreeFingerAngleExporter : MonoBehaviour
         //string result = $"왼손 중지: {middleAngle:F1}°\n" +
                         //$"왼손 약지: {ringAngle:F1}°\n" +
                         //$"왼손 소지: {pinkyAngle:F1}°";
+        /*
         string result = "아무 모드도 아님";
         if(middleAngle <= 60.0f && middleAngle > 0.0f)
         {
@@ -83,6 +84,7 @@ public class ThreeFingerAngleExporter : MonoBehaviour
             result = "왼손 아래로 스크롤";
         }
         Debug.Log(result);
+        */
     }
     private void ReportRightFingerAngles()
     {
@@ -106,6 +108,7 @@ public class ThreeFingerAngleExporter : MonoBehaviour
         //string result = $"오른손 중지: {middleAngle:F1}°\n" +
                         //$"오른손 약지: {ringAngle:F1}°\n" +
                         //$"오른손 소지: {pinkyAngle:F1}°";
+        /*
         string result = "아무 모드도 아님";
         if(middleAngle <= 60.0f && middleAngle > 0.0f)
         {
@@ -120,6 +123,7 @@ public class ThreeFingerAngleExporter : MonoBehaviour
             result = "오른손 아래로 스크롤";
         }
         Debug.Log(result);
+        */
     }
 
     // IHand의 GetJointPose를 사용하여 두 관절 사이의 방향 벡터를 계산하는 헬퍼 함수

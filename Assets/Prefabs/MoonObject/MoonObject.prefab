@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 6189231785636173222}
   - component: {fileID: 4798411977950448053}
   - component: {fileID: 2751306257415463088}
+  - component: {fileID: 6322965672380526306}
   m_Layer: 6
   m_Name: MoonObject
   m_TagString: Untagged
@@ -123,3 +124,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   selMat: {fileID: 2100000, guid: accd59c880de47c4792b0b843966afad, type: 2}
   unSelMat: {fileID: 2100000, guid: d69dd56330c2d9f47a00044cae50e1ed, type: 2}
+--- !u!114 &6322965672380526306
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7127677661315948393}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlineMode: 0
+  outlineColor: {r: 1, g: 0, b: 0, a: 1}
+  outlineWidth: 2
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []
