@@ -3,36 +3,48 @@ using UnityEngine;
 
 public class SingleHandGestureWidgetSelector : MonoBehaviour
 {
-    [SerializeField] 
-    private RayInteractor _rayInteractor; // Ray Interactor 가져오기.
+    [SerializeField] private ThreeFingerAngleExporter _threeFingerAngleExporter;
+    [SerializeField] private MWidget _mWidget;
+    [Header("Scroll Properties")]
+    public float scrollSpeed = 0.1f;
+    public float scrollRate = 0.25f;
+    private float _scrollTimer = 0.0f;
     private RaycastHit _raycastHit;
     void Start()
     {
-        this.AssertField(_rayInteractor, nameof(_rayInteractor));
     }
     void Update()
     {
-        switch (_rayInteractor.State) // 현재 선택중인지, 아닌지를 판별.
+        if(_threeFingerAngleExporter)
         {
-            case InteractorState.Normal:
-                //Debug.LogWarning("Released!_Normal");
-                break;
-            case InteractorState.Select:
-                //Debug.LogWarning("Select!_Select");
-                if (Physics.Raycast(_rayInteractor.Origin, _rayInteractor.Forward, out _raycastHit))
-                {
-                    if(_raycastHit.transform.gameObject)
-                    {
-                        
-                    }
-                    //Debug.LogWarning( _raycastHit.transform.gameObject.name + " is in " + _raycastHit.point);
-                }
-                break;
-            case InteractorState.Disabled:
-                //Debug.LogWarning("Released!_Disabled");
-                break;
-            default:
-                break;
+            if(_scrollTimer >= scrollRate)
+            {
+                ScrollWithGesture(_threeFingerAngleExporter.GetMiddleAngle());
+                _scrollTimer = 0.0f;
+            }
+            else
+            {
+                _scrollTimer += Time.deltaTime;
+            }
+            //Debug.LogWarning(_threeFingerAngleExporter.GetMiddleAngle());
+        }
+        
+    }
+    void ScrollWithGesture(float angle)
+    {
+        if(angle >= 0 && angle <= 50)
+        {
+            Debug.Log(gameObject.name + "위로 스크롤");
+            _mWidget.ScrollUp(scrollSpeed);
+        }
+        else if (angle > 50 && angle < 130)
+        {
+            Debug.Log(gameObject.name + "커서 모드");
+        }
+        else if (angle >= 130 && angle <= 180)
+        {
+            Debug.Log(gameObject.name + "아래로 스크롤");
+            _mWidget.ScrollDown(scrollSpeed);
         }
     }
 }

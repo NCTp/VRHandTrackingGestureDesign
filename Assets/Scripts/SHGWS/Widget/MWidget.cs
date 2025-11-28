@@ -2,6 +2,7 @@ using UnityEngine;
 using Oculus.Interaction;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine.UI;
 
 public class MWidget : MonoBehaviour
 {
@@ -13,8 +14,10 @@ public class MWidget : MonoBehaviour
     public GameObject scrollView;
     public GameObject content;
     public GameObject itemPrefab;
+    [SerializeField] private Scrollbar scrollbar;
 
     private List<GameObject> _items = new List<GameObject>(); // 목록에 들어가는 게임오브젝트
+    private GameObject _selectedItem;
     private bool _isItemListGenerated = false;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -37,6 +40,17 @@ public class MWidget : MonoBehaviour
                     if (scrollView != null)
                     {
                         scrollView.SetActive(true);
+                    }
+                    if(scrollbar != null)
+                    {
+                        if(Input.GetKeyDown(KeyCode.K))
+                        {
+                            ScrollUp(0.1f);
+                        }
+                        else if (Input.GetKeyDown(KeyCode.L))
+                        {
+                            ScrollDown(0.1f);
+                        }
                     }
                     this.transform.position = _rayInteractor.Origin + offSet;
                     break;
@@ -65,7 +79,6 @@ public class MWidget : MonoBehaviour
             }
         }
     }
-
     // 위젯에 띄울 아이템 리스트를 생성
     void GenerateItemList()
     {
@@ -111,4 +124,14 @@ public class MWidget : MonoBehaviour
         _items.Clear();
         _isItemListGenerated = false;
     }
+
+    public void ScrollUp(float upValue)
+    {
+        scrollbar.value += upValue;
+    }
+    public void ScrollDown(float downValue)
+    {
+        scrollbar.value -= downValue;
+    }
+
 }
