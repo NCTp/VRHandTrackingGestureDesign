@@ -11,6 +11,7 @@ public class MoonObject : MonoBehaviour
     }
     public Material selMat;
     public Material unSelMat;
+    public Material targetMat;
     private MoonObjectStatus _status;
     private Renderer _renderer;
     private Outline _outline;
@@ -30,6 +31,7 @@ public class MoonObject : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        /*
         switch(_status)
         {
             case MoonObjectStatus.Selected:
@@ -47,11 +49,21 @@ public class MoonObject : MonoBehaviour
                 }
                 break;
         }
+        */
+        
     }
 
-    void SetOutline(bool input)
+    public void SetOutline(bool input)
     {
-        
+        if(_outline)
+        {
+            _outline.enabled = input;
+        }
+    }
+
+    public void SetTargetMat()
+    {
+        _renderer.material = targetMat;
     }
 
     void SetOutlineColor(Color newColor)

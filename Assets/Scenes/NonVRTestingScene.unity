@@ -733,7 +733,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8366057762180134587, guid: 19d4f2fc2c9a0ff448ce5354a3a95fbd, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 117.00025
+      value: 116.99994
       objectReference: {fileID: 0}
     - target: {fileID: 8742789040399109554, guid: 19d4f2fc2c9a0ff448ce5354a3a95fbd, type: 3}
       propertyPath: m_AnchorMax.y
@@ -1177,15 +1177,15 @@ PrefabInstance:
       objectReference: {fileID: 7127677661315948393, guid: f911761968e6a4b43a727de1bcfdd5b2, type: 3}
     - target: {fileID: 4106158400436859064, guid: 49c8a4f3b13316447a2d65eff9c82fb5, type: 3}
       propertyPath: objectNumber
-      value: 50
+      value: 100
       objectReference: {fileID: 0}
     - target: {fileID: 4106158400436859064, guid: 49c8a4f3b13316447a2d65eff9c82fb5, type: 3}
       propertyPath: maxDistanceBetweenObjects
-      value: 1.5
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4106158400436859064, guid: 49c8a4f3b13316447a2d65eff9c82fb5, type: 3}
       propertyPath: minDistanceBetweenObjects
-      value: 1
+      value: 0.75
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -2372,8 +2372,8 @@ Camera:
   m_GameObject: {fileID: 2035928031}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_ClearFlags: 2
+  m_BackGroundColor: {r: 1, g: 1, b: 1, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0

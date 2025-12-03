@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-public class MoonObjectSpawner : MonoBehaviour
+public class MoonObjectSpawner : Singleton<MoonObjectSpawner>
 {
     [Header("Spawn Settings")]
     public GameObject moonObject; // 스폰할 게임 오브젝트 프리팹
@@ -16,10 +16,24 @@ public class MoonObjectSpawner : MonoBehaviour
     public int maxPlacementAttempts = 100; // 각 오브젝트 배치 시 최대 시도 횟수
 
     private List<Vector3> spawnedPositions = new List<Vector3>();
+    public List<GameObject> _moonObjects = new List<GameObject>(); // 스폰된 MoonObject 리스트
+    public MoonObject _targetMoonObject; // 이번에 타겟으로 지정된 MoonObject
 
     void Start()
     {
-        GenerateObjects();
+        ReGenerateObjects();
+    }
+
+    void Update()
+    {
+        if(Input.GetKeyDown(KeyCode.R))
+        {
+            ClearObjects();
+        }
+        if(Input.GetKeyDown(KeyCode.T))
+        {
+            ReGenerateObjects();
+        }
     }
 
     public void GenerateObjects()
@@ -46,7 +60,8 @@ public class MoonObjectSpawner : MonoBehaviour
         // 1. 첫 번째 오브젝트 배치
         Vector3 firstPos = transform.position + Random.insideUnitSphere * radius;
         spawnedPositions.Add(firstPos);
-        Instantiate(moonObject, firstPos, Quaternion.identity, transform);
+        GameObject firstObject = Instantiate(moonObject, firstPos, Quaternion.identity, transform);
+        _moonObjects.Add(firstObject);
 
         // 2. 나머지 오브젝트 배치
         for (int i = 1; i < objectNumber; i++)
@@ -85,27 +100,12 @@ public class MoonObjectSpawner : MonoBehaviour
                 {
                     continue; // 최소 거리를 만족하지 않으면 다시 시도
                 }
-                
-                // c) 가장 가까운 이웃과의 거리가 최대 거리 제약을 만족하는지 확인
-                // 이 로직은 후보 위치 생성 방식에 의해 암시적으로 처리될 수 있지만,
-                // 복잡한 배치에서는 보장되지 않으므로 명시적으로 확인하는 것이 안전할 수 있습니다.
-                // 하지만 현재 생성 방식에서는 이중 확인이 될 수 있으므로 생략합니다.
-                /*
-                float nearestDist = float.MaxValue;
-                foreach(var pos in spawnedPositions)
-                {
-                    nearestDist = Mathf.Min(nearestDist, Vector3.Distance(candidatePos, pos));
-                }
-                if (nearestDist > maxDistanceBetweenObjects)
-                {
-                    continue;
-                }
-                */
 
                 // 모든 검사를 통과하면 위치 확정
                 positionFound = true;
                 spawnedPositions.Add(candidatePos);
-                Instantiate(moonObject, candidatePos, Quaternion.identity, transform);
+                GameObject temp = Instantiate(moonObject, candidatePos, Quaternion.identity, transform);
+                _moonObjects.Add(temp);
                 break; // 다음 오브젝트 배치로 넘어감
             }
 
@@ -123,5 +123,36 @@ public class MoonObjectSpawner : MonoBehaviour
         // 스폰 영역을 기즈모로 표시
         Gizmos.color = new Color(0, 1, 1, 0.3f);
         Gizmos.DrawSphere(transform.position, radius);
+    }
+
+    void ReGenerateObjects()
+    {
+        ClearObjects();
+        GenerateObjects();
+        SetTargetObject();
+    }
+
+    void SetTargetObject()
+    {
+        if(_moonObjects.Count > 0)
+        {
+            int temp = Random.Range(0, _moonObjects.Count);
+            _targetMoonObject = _moonObjects[temp].GetComponent<MoonObject>();
+            if(_targetMoonObject)
+            {
+                //_targetMoonObject.SetOutline(true);
+                _targetMoonObject.SetTargetMat();
+            }
+        }
+    }
+
+    void ClearObjects()
+    { 
+        for(int i = 0; i < _moonObjects.Count; i++)
+        {
+            Destroy(_moonObjects[i].gameObject);
+        }
+        _moonObjects.Clear();
+        Debug.LogWarning("Objects Cleared!");
     }
 }

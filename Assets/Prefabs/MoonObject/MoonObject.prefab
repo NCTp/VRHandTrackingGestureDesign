@@ -67,7 +67,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: d69dd56330c2d9f47a00044cae50e1ed, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -124,6 +124,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   selMat: {fileID: 2100000, guid: accd59c880de47c4792b0b843966afad, type: 2}
   unSelMat: {fileID: 2100000, guid: d69dd56330c2d9f47a00044cae50e1ed, type: 2}
+  targetMat: {fileID: 2100000, guid: 161f6b917eb97404eadb6a27e11ec78a, type: 2}
 --- !u!114 &6322965672380526306
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -137,7 +138,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   outlineMode: 0
-  outlineColor: {r: 1, g: 0, b: 0, a: 1}
+  outlineColor: {r: 1, g: 0.14192973, b: 0, a: 1}
   outlineWidth: 2
   precomputeOutline: 0
   bakeKeys: []
