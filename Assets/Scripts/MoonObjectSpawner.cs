@@ -3,6 +3,12 @@ using System.Collections.Generic;
 
 public class MoonObjectSpawner : Singleton<MoonObjectSpawner>
 {
+    private enum SpawnDensity
+    {
+        Low,
+        Normal,
+        High
+    }
     [Header("Spawn Settings")]
     public GameObject moonObject; // 스폰할 게임 오브젝트 프리팹
     public int objectNumber = 30; // 스폰할 오브젝트의 수

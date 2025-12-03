@@ -31,25 +31,25 @@ public class MoonObject : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        /*
+        
         switch(_status)
         {
             case MoonObjectStatus.Selected:
                 if(_renderer != null)
                 {
-                    _renderer.material = selMat;
+                    //_renderer.material = selMat;
                     _outline.enabled = true;
                 }
                 break;
             case MoonObjectStatus.Unselected:
                 if(_renderer != null)
                 {
-                    _renderer.material = unSelMat;
+                    //_renderer.material = unSelMat;
                     _outline.enabled = false;
                 }
                 break;
         }
-        */
+        
         
     }
 
