@@ -111,6 +111,7 @@ public class MoonObjectSpawner : Singleton<MoonObjectSpawner>
                 positionFound = true;
                 spawnedPositions.Add(candidatePos);
                 GameObject temp = Instantiate(moonObject, candidatePos, Quaternion.identity, transform);
+                temp.gameObject.name = _moonObjects.Count.ToString();
                 _moonObjects.Add(temp);
                 break; // 다음 오브젝트 배치로 넘어감
             }
@@ -123,21 +124,18 @@ public class MoonObjectSpawner : Singleton<MoonObjectSpawner>
             }
         }
     }
-
     void OnDrawGizmosSelected()
     {
         // 스폰 영역을 기즈모로 표시
         Gizmos.color = new Color(0, 1, 1, 0.3f);
         Gizmos.DrawSphere(transform.position, radius);
     }
-
     void ReGenerateObjects()
     {
         ClearObjects();
         GenerateObjects();
         SetTargetObject();
     }
-
     void SetTargetObject()
     {
         if(_moonObjects.Count > 0)
@@ -151,7 +149,6 @@ public class MoonObjectSpawner : Singleton<MoonObjectSpawner>
             }
         }
     }
-
     void ClearObjects()
     { 
         for(int i = 0; i < _moonObjects.Count; i++)

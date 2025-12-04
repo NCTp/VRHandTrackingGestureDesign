@@ -18,15 +18,13 @@ public class MWidget : MonoBehaviour
 
     private List<GameObject> _items = new List<GameObject>(); // 목록에 들어가는 게임오브젝트
     private GameObject _selectedItem;
+    private int _selectedItemIdx = 0;
     private bool _isItemListGenerated = false;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         
     }
-
-
-
     // Update is called once per frame
     void Update()
     {
@@ -43,21 +41,26 @@ public class MWidget : MonoBehaviour
                     }
                     if(scrollbar != null)
                     {
-                        if(Input.GetKeyDown(KeyCode.K))
+                        if(Input.GetKeyDown(KeyCode.UpArrow))
                         {
-                            ScrollUp(0.1f);
+                            ScrollUp();
                         }
-                        else if (Input.GetKeyDown(KeyCode.L))
+                        else if (Input.GetKeyDown(KeyCode.DownArrow))
                         {
-                            ScrollDown(0.1f);
+                            ScrollDown();
                         }
                     }
                     this.transform.position = _rayInteractor.Origin + offSet;
+
+                    if(_selectedItem)
+                    {
+                        SetItemOutline(_selectedItem, true);
+                    }
                     break;
                 case InteractorState.Normal:
                     if (scrollView != null)
                     {
-                        scrollView.SetActive(false);
+                        scrollView.SetActive(false); 
                     }
                     ClearItemList();
                     break;
@@ -65,7 +68,7 @@ public class MWidget : MonoBehaviour
                 default:
                     if (scrollView != null)
                     {
-                        scrollView.SetActive(false);
+                        scrollView.SetActive(false); 
                     }
                     ClearItemList();
                     break;
@@ -75,7 +78,18 @@ public class MWidget : MonoBehaviour
         {
             if (scrollView != null)
             {
-                scrollView.SetActive(false);
+                scrollView.SetActive(true); // 여기 나중에 false 로.
+            }
+        }
+    }
+    void SetItemOutline(GameObject item, bool input)
+    {
+        if(item)
+        {
+            MoonItem moonItem = item.GetComponent<MoonItem>();
+            if(moonItem)
+            {
+                moonItem.SetOutline(input);
             }
         }
     }
@@ -84,18 +98,24 @@ public class MWidget : MonoBehaviour
     {
         if(_rayInteractor)
         {
-            _items = _coneDetector.detectedTargets;
+            //_items = _coneDetector.detectedTargets;
             //if(_items.Count == _coneDetector.detectedTargets.Count) _isItemListGenerated = true;
             if(!_isItemListGenerated)
             {
-                for(int i = 0; i < _items.Count; i++)
+                for(int i = 0; i < _coneDetector.detectedTargets.Count; i++)
                 {
                     GameObject newItem = Instantiate(itemPrefab, content.transform);
                     newItem.transform.localPosition = Vector3.zero;
                     newItem.transform.localRotation = Quaternion.identity;
+                    newItem.gameObject.name = _coneDetector.detectedTargets[i].name;
+                    _items.Add(newItem);
                 }
             }
-            if(_items.Count == _coneDetector.detectedTargets.Count) _isItemListGenerated = true;
+            if(_items.Count == _coneDetector.detectedTargets.Count) 
+            {
+                _isItemListGenerated = true;
+            }
+            _selectedItem = _items[_selectedItemIdx];
         }
     }
 
@@ -122,16 +142,43 @@ public class MWidget : MonoBehaviour
             }
         }
         _items.Clear();
+        SetItemOutline(_selectedItem, false);
+        _selectedItemIdx = 0;
+        _selectedItem = null;
         _isItemListGenerated = false;
     }
 
-    public void ScrollUp(float upValue)
+    public void ScrollUp()
     {
-        scrollbar.value += upValue;
-    }
-    public void ScrollDown(float downValue)
-    {
-        scrollbar.value -= downValue;
-    }
+        if(_items.Count > 0)
+        {
+            SetItemOutline(_selectedItem, false);
 
+            _selectedItemIdx += 1;
+            if(_selectedItemIdx >= _items.Count - 1)
+            {
+                _selectedItemIdx = _items.Count - 1;
+            }
+            _selectedItem = _items[_selectedItemIdx];
+
+            SetItemOutline(_selectedItem, true);
+
+            Debug.Log("Now Selecting: " + _items[_selectedItemIdx].gameObject);
+        }
+    }
+    public void ScrollDown()
+    {
+        if(_items.Count > 0)
+        {
+            SetItemOutline(_selectedItem, false);
+            _selectedItemIdx -= 1;
+            if(_selectedItemIdx <= 0)
+            {
+                _selectedItemIdx = 0;
+            }
+            _selectedItem = _items[_selectedItemIdx];
+            SetItemOutline(_selectedItem, true);
+            Debug.Log("Now Selecting: " + _items[_selectedItemIdx].gameObject);
+        }
+    }
 }
