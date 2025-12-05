@@ -11,7 +11,7 @@ public class SingleHandGestureWidgetSelector : MonoBehaviour
     }
     void Update()
     {
-        
+        //_threeFingerAngleExporter.GetPalmNormal();
     }
     public void ThreeFingerUp()
     {
@@ -20,5 +20,9 @@ public class SingleHandGestureWidgetSelector : MonoBehaviour
     public void ThreeFingerDown()
     {
         _mWidget.ScrollDown();
+    }
+    public void TurnWristToFace()
+    {
+        _mWidget.SelectItem();
     }
 }

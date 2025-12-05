@@ -125,6 +125,8 @@ MonoBehaviour:
   selMat: {fileID: 2100000, guid: accd59c880de47c4792b0b843966afad, type: 2}
   unSelMat: {fileID: 2100000, guid: d69dd56330c2d9f47a00044cae50e1ed, type: 2}
   targetMat: {fileID: 2100000, guid: 161f6b917eb97404eadb6a27e11ec78a, type: 2}
+  _detectedOutlineColor: {r: 0.735849, g: 0.735849, b: 0.735849, a: 1}
+  _selectedOutlinecolor: {r: 1, g: 0.9297151, b: 0.11792451, a: 1}
 --- !u!114 &6322965672380526306
 MonoBehaviour:
   m_ObjectHideFlags: 0

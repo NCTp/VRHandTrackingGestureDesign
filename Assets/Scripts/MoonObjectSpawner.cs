@@ -32,14 +32,6 @@ public class MoonObjectSpawner : Singleton<MoonObjectSpawner>
 
     void Update()
     {
-        if(Input.GetKeyDown(KeyCode.R))
-        {
-            ClearObjects();
-        }
-        if(Input.GetKeyDown(KeyCode.T))
-        {
-            ReGenerateObjects();
-        }
     }
 
     public void GenerateObjects()
@@ -67,6 +59,7 @@ public class MoonObjectSpawner : Singleton<MoonObjectSpawner>
         Vector3 firstPos = transform.position + Random.insideUnitSphere * radius;
         spawnedPositions.Add(firstPos);
         GameObject firstObject = Instantiate(moonObject, firstPos, Quaternion.identity, transform);
+        firstObject.gameObject.name = _moonObjects.Count.ToString();
         _moonObjects.Add(firstObject);
 
         // 2. 나머지 오브젝트 배치
@@ -130,7 +123,7 @@ public class MoonObjectSpawner : Singleton<MoonObjectSpawner>
         Gizmos.color = new Color(0, 1, 1, 0.3f);
         Gizmos.DrawSphere(transform.position, radius);
     }
-    void ReGenerateObjects()
+    public void ReGenerateObjects()
     {
         ClearObjects();
         GenerateObjects();
@@ -146,6 +139,7 @@ public class MoonObjectSpawner : Singleton<MoonObjectSpawner>
             {
                 //_targetMoonObject.SetOutline(true);
                 _targetMoonObject.SetTargetMat();
+                _targetMoonObject.SetIsTarget(true);
             }
         }
     }
@@ -154,6 +148,17 @@ public class MoonObjectSpawner : Singleton<MoonObjectSpawner>
         for(int i = 0; i < _moonObjects.Count; i++)
         {
             Destroy(_moonObjects[i].gameObject);
+        }
+        _moonObjects.Clear();
+        Debug.LogWarning("Objects Cleared!");
+    }
+
+    public void ClearObjectsStatus()
+    { 
+        for(int i = 0; i < _moonObjects.Count; i++)
+        {
+            MoonObject temp = _moonObjects[i].GetComponent<MoonObject>();
+            if(temp) temp.SetStatus(MoonObject.MoonObjectStatus.Unselected);
         }
         _moonObjects.Clear();
         Debug.LogWarning("Objects Cleared!");

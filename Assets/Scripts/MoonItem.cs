@@ -26,11 +26,6 @@ public class MoonItem : MonoBehaviour
         if(outline)
         {
             outline.enabled = input;
-            Debug.Log("Set Outline!");
-        }
-        else
-        {
-            Debug.Log("No Outline!");
         }
     }
 }

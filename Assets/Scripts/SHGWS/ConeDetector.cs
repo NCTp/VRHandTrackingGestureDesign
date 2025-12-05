@@ -74,18 +74,25 @@ public class ConeDetector : MonoBehaviour
         var newlyDetected = currentDetections.Except(detectedTargets).ToList();
         var noLongerDetected = detectedTargets.Except(currentDetections).ToList();
 
+
         // 더 이상 감지되지 않는 타겟의 머티리얼을 원래대로 되돌립니다.
         foreach (var obj in noLongerDetected)
         {
-            MoonObject mObject = obj.GetComponent<MoonObject>();
-            if (mObject != null) mObject.SetStatus(MoonObject.MoonObjectStatus.Unselected);
+            if(obj)
+            {
+                MoonObject mObject = obj.GetComponent<MoonObject>();
+                if (mObject != null) mObject.SetStatus(MoonObject.MoonObjectStatus.Unselected);
+            }
         }
 
         // 새로 감지된 타겟의 머티리얼을 빨간색으로 변경합니다.
         foreach (var obj in newlyDetected)
         {
-            MoonObject mObject = obj.GetComponent<MoonObject>();
-            if (mObject != null) mObject.SetStatus(MoonObject.MoonObjectStatus.Selected);
+            if(obj)
+            {
+                MoonObject mObject = obj.GetComponent<MoonObject>();
+                if (mObject != null) mObject.SetStatus(MoonObject.MoonObjectStatus.Detected);
+            }
         }
 
         // 감지된 타겟 리스트를 현재 상태로 업데이트합니다.
