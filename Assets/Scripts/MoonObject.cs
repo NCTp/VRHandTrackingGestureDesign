@@ -13,7 +13,7 @@ public class MoonObject : MonoBehaviour
     public Material selMat;
     public Material unSelMat;
     public Material targetMat;
-    private MoonObjectStatus _status;
+    [SerializeField] private MoonObjectStatus _status;
     private Renderer _renderer;
 
     private bool _isTarget = false;
@@ -66,8 +66,6 @@ public class MoonObject : MonoBehaviour
                 }
                 break;
         }
-        
-        
     }
 
     public void SetOutline(bool input)
