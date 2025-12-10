@@ -98,51 +98,10 @@ public class ConeDetector : MonoBehaviour
         // 감지된 타겟 리스트를 현재 상태로 업데이트합니다.
         detectedTargets = currentDetections;
     }
-    
-    /// <summary>
-    /// 지정된 게임 오브젝트의 머티리얼을 빨간색으로 변경합니다.
-    /// </summary>
-    void ApplyRedMaterial(GameObject obj)
-    {
-        Renderer renderer = obj.GetComponent<Renderer>();
-        if (renderer == null) return;
-
-        // 원본 머티리얼을 아직 저장하지 않았다면 저장합니다.
-        if (!_originalMaterials.ContainsKey(renderer))
-        {
-            _originalMaterials[renderer] = renderer.materials;
-        }
-
-        // 모든 머티리얼을 빨간색으로 교체하기 위한 새 배열을 생성합니다.
-        var newMaterials = new Material[renderer.materials.Length];
-        for (int i = 0; i < newMaterials.Length; i++)
-        {
-            newMaterials[i] = _redMaterial;
-        }
-        renderer.materials = newMaterials;
-    }
-
-    /// <summary>
-    /// 지정된 게임 오브젝트의 머티리얼을 원래 상태로 되돌립니다.
-    /// </summary>
-    void RevertMaterial(GameObject obj)
-    {
-        Renderer renderer = obj.GetComponent<Renderer>();
-        if (renderer != null && _originalMaterials.ContainsKey(renderer))
-        {
-            renderer.materials = _originalMaterials[renderer];
-            _originalMaterials.Remove(renderer);
-        }
-    }
 
     // 스크립트가 비활성화되거나 오브젝트가 파괴될 때 호출됩니다.
     void OnDisable()
     {
-        // 모든 감지된 타겟의 머티리얼을 원래대로 되돌립니다.
-        foreach (var obj in detectedTargets)
-        {
-            RevertMaterial(obj);
-        }
         detectedTargets.Clear();
         _originalMaterials.Clear();
     }

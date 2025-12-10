@@ -1,259 +1,199 @@
 using UnityEngine;
 using Oculus.Interaction;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine.UI;
 
 public class MWidget : MonoBehaviour
 {
-    [SerializeField] private RayInteractor _rayInteractor; // 고정될 위치.
-    [SerializeField] private ConeDetector _coneDetector; // 고정될 위치.
-    [SerializeField] private bool _isSHGWS = true;
+    [SerializeField] private RayInteractor _rayInteractor;
+    [SerializeField] private ConeDetector _coneDetector;
+    
     [Header("Position Properties")]
-    public Vector3 offSet = new Vector3(0f,0f,0f); // 고정될 위치로부터의 오프셋
+    public Vector3 offSet = new Vector3(0f, 0f, 0f);
+
     [Header("Scroll View")]
     public GameObject scrollView;
     public GameObject content;
     public GameObject itemPrefab;
-    [SerializeField] private Scrollbar scrollbar;
-    private List<GameObject> _items = new List<GameObject>(); // 목록에 들어가는 게임오브젝트
+
+    private List<GameObject> _items = new List<GameObject>();
     private GameObject _selectedItem;
     private int _selectedItemIdx = 0;
     private bool _isItemListGenerated = false;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
-    // Update is called once per frame
+
     void Update()
     {
-        //Debug.Log("_item count : " + _items.Count);
-        if(_rayInteractor)
-        {
-            switch (_rayInteractor.State)
-            {
-                case InteractorState.Select:
-                    if(!_isItemListGenerated) GenerateItemList(); // 리스트가 없는 경우에만 호출.
-                    if (scrollView != null)
-                    {
-                        scrollView.SetActive(true);
-                    }
-                    this.transform.position = _rayInteractor.Origin + offSet;
+        if (!_rayInteractor) return;
 
-                    if(_selectedItem)
-                    {
-                        SetItemOutline(_selectedItem, true);
-                    }
-                    break;
-                case InteractorState.Normal:
-                    if (scrollView != null)
-                    {
-                        scrollView.SetActive(false); 
-                    }
-                    _isItemListGenerated = false;
-                    ClearItemList();
-                    break;
-                case InteractorState.Disabled:
-                default:
-                    if (scrollView != null)
-                    {
-                        scrollView.SetActive(false); 
-                    }
-                    _isItemListGenerated = false;
-                    ClearItemList();
-                    break;
-            }
-        }
-        else
+        switch (_rayInteractor.State)
         {
-            if (scrollView != null)
-            {
-                scrollView.SetActive(true); // 여기 나중에 false 로.
-            }
+            case InteractorState.Select:
+                if (!_isItemListGenerated) GenerateItemList();
+                
+                if (scrollView != null) scrollView.SetActive(true);
+                
+                this.transform.position = _rayInteractor.Origin + offSet;
+
+                // 선택된 아이템이 유효한지 지속적으로 체크 (선택 중 대상이 사라질 수 있음)
+                if (_selectedItem) SetItemOutline(_selectedItem, true);
+                break;
+
+            case InteractorState.Normal:
+            case InteractorState.Disabled:
+            default:
+                if (scrollView != null) scrollView.SetActive(false);
+                ClearItemList();
+                break;
         }
     }
-    void SetItemOutline(GameObject item, bool input)
-    {
-        if(item)
-        {
-            MoonItem moonItem = item.GetComponent<MoonItem>();
-            if(moonItem)
-            {
-                moonItem.SetOutline(input);
-            }
-        }
-    }
-    // 위젯에 띄울 아이템 리스트를 생성
+
     void GenerateItemList()
     {
-        if(_rayInteractor)
+        if (!_rayInteractor || _coneDetector == null) return;
+
+        if (!_isItemListGenerated)
         {
-            //_items = _coneDetector.detectedTargets;
-            //if(_items.Count == _coneDetector.detectedTargets.Count) _isItemListGenerated = true;
-            if(!_isItemListGenerated)
+            // [방어 코드] 감지된 타겟이 없으면 리턴
+            if (_coneDetector.detectedTargets == null || _coneDetector.detectedTargets.Count == 0) return;
+
+            for (int i = 0; i < _coneDetector.detectedTargets.Count; i++)
             {
-                for(int i = 0; i < _coneDetector.detectedTargets.Count; i++)
-                {
-                    GameObject newItem = Instantiate(itemPrefab, content.transform);
-                    newItem.transform.localPosition = Vector3.zero;
-                    newItem.transform.localRotation = Quaternion.identity;
-                    newItem.gameObject.name = _coneDetector.detectedTargets[i].name;
-                    _items.Add(newItem);
-                }
+                // [방어 코드] 타겟이 null인 경우 건너뜀 (이미 파괴된 객체 등)
+                if (_coneDetector.detectedTargets[i] == null) continue;
+
+                GameObject newItem = Instantiate(itemPrefab, content.transform);
+                newItem.transform.localPosition = Vector3.zero;
+                newItem.transform.localRotation = Quaternion.identity;
+                newItem.name = _coneDetector.detectedTargets[i].name;
+                _items.Add(newItem);
             }
-            if(_items.Count == _coneDetector.detectedTargets.Count) 
+
+            _isItemListGenerated = true;
+            _selectedItemIdx = 0; // 리스트 생성 시 인덱스 초기화
+
+            if (_items.Count > 0)
             {
-                _isItemListGenerated = true;
-                if(_items.Count > 0) _selectedItem = _items[_selectedItemIdx];
-                if(_coneDetector.detectedTargets[_selectedItemIdx])
-                {
-                    MoonObject moonObject = GetMoonObject(_coneDetector.detectedTargets[_selectedItemIdx]);
-                    if(moonObject)
-                    {
-                        moonObject.SetStatus(MoonObject.MoonObjectStatus.Selected);
-                    }
-            }
-                //SetItemOutline(_selectedItem, true);
+                _selectedItem = _items[0];
+                
+                // 첫 번째 아이템 선택 처리
+                MoonObject moonObject = GetSafeMoonObject(0);
+                if (moonObject) moonObject.SetStatus(MoonObject.MoonObjectStatus.Selected);
             }
         }
     }
 
-    // 위젯에 띄운 오브젝트를 모두 제거하고, 리스트를 초기화.
     void ClearItemList()
     {
-        if(_coneDetector.detectedTargets[_selectedItemIdx])
-        {
-            MoonObject moonObject = GetMoonObject(_coneDetector.detectedTargets[_selectedItemIdx]);
-            if(moonObject)
-            {
-                moonObject.SetStatus(MoonObject.MoonObjectStatus.Unselected);
-            }
-        }
-        int childCount = content.transform.childCount;
-        GameObject[] childrenToDestroy = new GameObject[childCount];
+        // 기존 선택 상태 해제
+        MoonObject moonObject = GetSafeMoonObject(_selectedItemIdx);
+        if (moonObject) moonObject.SetStatus(MoonObject.MoonObjectStatus.Unselected);
 
-        for(int i = 0; i < childCount; i++)
+        // UI 아이템 제거
+        foreach (Transform child in content.transform)
         {
-            childrenToDestroy[i] = content.transform.GetChild(i).gameObject;
+            Destroy(child.gameObject);
         }
 
-        foreach (GameObject child in childrenToDestroy)
-        {
-            if(Application.isPlaying)
-            {
-                Destroy(child);
-            }
-            else
-            {
-                DestroyImmediate(child);
-            }
-        }
         _items.Clear();
         _selectedItemIdx = 0;
         _selectedItem = null;
-        //_isItemListGenerated = false;
+        _isItemListGenerated = false;
+    }
 
-        //MoonObjectSpawner.Instance.ClearObjectsStatus();
+    // [핵심 개선] 안전하게 MoonObject를 가져오는 헬퍼 메서드
+    private MoonObject GetSafeMoonObject(int index)
+    {
+        // 1. Detector 유효성 검사
+        if (_coneDetector == null || _coneDetector.detectedTargets == null) return null;
+
+        // 2. 인덱스 범위 검사
+        if (index < 0 || index >= _coneDetector.detectedTargets.Count) return null;
+
+        // 3. GameObject 존재 여부 검사
+        GameObject target = _coneDetector.detectedTargets[index];
+        if (target == null) return null;
+
+        // 4. 컴포넌트 반환
+        return target.GetComponent<MoonObject>();
     }
 
     public void ScrollUp()
     {
-        if(_items.Count > 0)
-        {
-            SetItemOutline(_selectedItem, false);
-            if(_coneDetector.detectedTargets[_selectedItemIdx])
-            {
-                MoonObject moonObject = GetMoonObject(_coneDetector.detectedTargets[_selectedItemIdx]);
-                if(moonObject)
-                {
-                    moonObject.SetStatus(MoonObject.MoonObjectStatus.Detected);
-                }
-            }
+        if (_items.Count <= 0) return;
 
-            _selectedItemIdx += 1;
-            if(_selectedItemIdx >= _items.Count - 1)
-            {
-                _selectedItemIdx = _items.Count - 1;
-            }
-            _selectedItem = _items[_selectedItemIdx];
+        // 이전 선택 해제
+        MoonObject prevObj = GetSafeMoonObject(_selectedItemIdx);
+        if (prevObj) prevObj.SetStatus(MoonObject.MoonObjectStatus.Detected);
+        SetItemOutline(_selectedItem, false);
 
-            SetItemOutline(_selectedItem, true);
-            if(_coneDetector.detectedTargets[_selectedItemIdx])
-            {
-                MoonObject moonObject = GetMoonObject(_coneDetector.detectedTargets[_selectedItemIdx]);
-                if(moonObject)
-                {
-                    moonObject.SetStatus(MoonObject.MoonObjectStatus.Selected);
-                }
-            }
-        }
+        // 인덱스 변경 및 클램핑(범위 제한)
+        _selectedItemIdx++;
+        if (_selectedItemIdx >= _items.Count) _selectedItemIdx = _items.Count - 1;
+
+        // 새 선택 적용
+        _selectedItem = _items[_selectedItemIdx];
+        SetItemOutline(_selectedItem, true);
+        
+        MoonObject nextObj = GetSafeMoonObject(_selectedItemIdx);
+        if (nextObj) nextObj.SetStatus(MoonObject.MoonObjectStatus.Selected);
     }
+
     public void ScrollDown()
     {
-        if(_items.Count > 0)
-        {
-            SetItemOutline(_selectedItem, false);
-            if(_coneDetector.detectedTargets[_selectedItemIdx])
-            {
-                MoonObject moonObject = GetMoonObject(_coneDetector.detectedTargets[_selectedItemIdx]);
-                if(moonObject)
-                {
-                    moonObject.SetStatus(MoonObject.MoonObjectStatus.Detected);
-                }
-            }
+        if (_items.Count <= 0) return;
 
-            _selectedItemIdx -= 1;
-            if(_selectedItemIdx <= 0)
-            {
-                _selectedItemIdx = 0;
-            }            
-            _selectedItem = _items[_selectedItemIdx];
+        // 이전 선택 해제
+        MoonObject prevObj = GetSafeMoonObject(_selectedItemIdx);
+        if (prevObj) prevObj.SetStatus(MoonObject.MoonObjectStatus.Detected);
+        SetItemOutline(_selectedItem, false);
 
-            SetItemOutline(_selectedItem, true);
-            if(_coneDetector.detectedTargets[_selectedItemIdx])
-            {
-                MoonObject moonObject = GetMoonObject(_coneDetector.detectedTargets[_selectedItemIdx]);
-                if(moonObject)
-                {
-                    moonObject.SetStatus(MoonObject.MoonObjectStatus.Selected);
-                }
-            }
-        }
-    }
-    private MoonObject GetMoonObject(GameObject gameObject)
-    {
-        MoonObject moonObject = gameObject.GetComponent<MoonObject>();
-        return moonObject;
-        
+        // 인덱스 변경 및 클램핑
+        _selectedItemIdx--;
+        if (_selectedItemIdx < 0) _selectedItemIdx = 0;
+
+        // 새 선택 적용
+        _selectedItem = _items[_selectedItemIdx];
+        SetItemOutline(_selectedItem, true);
+
+        MoonObject nextObj = GetSafeMoonObject(_selectedItemIdx);
+        if (nextObj) nextObj.SetStatus(MoonObject.MoonObjectStatus.Selected);
     }
 
     public void SelectItem()
     {
         Debug.Log("Select Item!");
-        if(_selectedItem)
+        if (_selectedItem)
         {
-            MoonObject moonObject = _coneDetector.detectedTargets[_selectedItemIdx].GetComponent<MoonObject>();
-            if(moonObject)
+            // 인덱스 기반으로 안전하게 객체 가져오기
+            MoonObject moonObject = GetSafeMoonObject(_selectedItemIdx);
+            
+            if (moonObject)
             {
-                if(moonObject.IsTarget() == true) // 만약 타겟 오브젝트였다면,
+                if (moonObject.IsTarget())
                 {
                     Debug.LogWarning(moonObject.gameObject.name + " is Selected, Correct Item!");
                     ClearItemList();
                     MoonObjectSpawner.Instance.ReGenerateObjects();
-                    //Destroy(_selectedItem.gameObject);
                 }
-                else // 타겟 오브젝트가 아니었다면,
+                else
                 {
                     Debug.LogWarning(moonObject.gameObject.name + " is Selected, Wrong Item!");
-                    //Destroy(_selectedItem.gameObject);
                 }
             }
             else
             {
-                Debug.LogWarning("No MoonObject!");
-                //Destroy(_selectedItem.gameObject);
+                Debug.LogWarning("Target object lost or invalid!");
+                // 상황에 따라 UI를 리프레시하거나 닫는 로직 추가 가능
             }
+        }
+    }
+
+    void SetItemOutline(GameObject item, bool input)
+    {
+        if (item)
+        {
+            MoonItem moonItem = item.GetComponent<MoonItem>();
+            if (moonItem) moonItem.SetOutline(input);
         }
     }
 }
