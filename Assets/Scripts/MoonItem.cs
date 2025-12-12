@@ -6,6 +6,8 @@ public class MoonItem : MonoBehaviour
 {
     public TextMeshProUGUI text;
     public UnityEngine.UI.Outline outline;
+    public Image image;
+    public bool isTargetItem = false;
     void Awake()
     {
         //_outline = GetComponent<Outline>();
@@ -28,4 +30,22 @@ public class MoonItem : MonoBehaviour
             outline.enabled = input;
         }
     }
+    public void SetTarget()
+    {
+        image.color = Color.red; 
+        isTargetItem = true;
+    } 
+
+    public void ButtonOnClick()
+    {
+        if(isTargetItem)
+        {
+            MoonObjectSpawner.Instance.RecordTCT();
+            MoonObjectSpawner.Instance.ReGenerateObjects();
+        }
+        else
+        {
+            MoonObjectSpawner.Instance.ReGenerateObjects();
+        }
+    }   
 }

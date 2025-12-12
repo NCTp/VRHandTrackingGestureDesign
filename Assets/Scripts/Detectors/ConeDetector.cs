@@ -29,7 +29,7 @@ public class ConeDetector : MonoBehaviour
     
     // [최적화] 매 프레임 메모리 할당 방지를 위해 클래스 멤버로 선언
     private HashSet<GameObject> _currentDetectionsSet = new HashSet<GameObject>();
-    private Collider[] _hitCollidersCache = new Collider[50]; // OverlapSphereNonAlloc용 버퍼
+    private Collider[] _hitCollidersCache = new Collider[100]; // OverlapSphereNonAlloc용 버퍼
 
     public void DetectTargetsInCone()
     {

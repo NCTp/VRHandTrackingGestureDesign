@@ -56,7 +56,7 @@ public class RayDetector : MonoBehaviour
                     _prevMoonObject = null;
                 }
                 
-                Debug.Log("Enter: " + _detectedTarget.name);
+                //Debug.Log("Enter: " + _detectedTarget.name);
             }
             
             // (같은 오브젝트를 계속 가리키고 있을 때는 아무것도 하지 않음 -> 성능 최적화)
@@ -72,7 +72,7 @@ public class RayDetector : MonoBehaviour
                 _prevMoonObject.SetStatus(MoonObject.MoonObjectStatus.Unselected);
                 _prevMoonObject = null; // 기억 초기화
                 
-                Debug.Log("Exit");
+                //Debug.Log("Exit");
             }
 
             _detectedTarget = null;
@@ -101,6 +101,15 @@ public class RayDetector : MonoBehaviour
                     MoonObject moonObject = _detectedTarget.GetComponent<MoonObject>();
                     // null 체크 추가 (안전성 강화)
                     if(moonObject && moonObject.IsTarget()) 
+                    {
+                        MoonObjectSpawner.Instance.RecordTCT();
+                        MoonObjectSpawner.Instance.ReGenerateObjects();
+                        // 선택 후 로직에 따라 _prevMoonObject를 초기화할지 결정 필요
+                        // 보통 재생성되면 기존 참조는 의미가 없어지므로 초기화 추천:
+                        _prevMoonObject = null; 
+                        _detectedTarget = null;
+                    }
+                    else
                     {
                         MoonObjectSpawner.Instance.ReGenerateObjects();
                         // 선택 후 로직에 따라 _prevMoonObject를 초기화할지 결정 필요

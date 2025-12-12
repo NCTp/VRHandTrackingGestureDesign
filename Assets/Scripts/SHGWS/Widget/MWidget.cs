@@ -13,8 +13,10 @@ public class MWidget : MonoBehaviour
 
     [Header("Scroll View")]
     public GameObject scrollView;
+    [SerializeField] private ScrollRect scrollRect;
     public GameObject content;
     public GameObject itemPrefab;
+
 
     private List<GameObject> _items = new List<GameObject>();
     private GameObject _selectedItem;
@@ -30,7 +32,10 @@ public class MWidget : MonoBehaviour
             case InteractorState.Select:
                 if (!_isItemListGenerated) GenerateItemList();
                 
-                if (scrollView != null) scrollView.SetActive(true);
+                if (scrollView != null) 
+                {
+                    scrollView.SetActive(true);
+                }
                 
                 this.transform.position = _rayInteractor.Origin + offSet;
 
@@ -41,7 +46,11 @@ public class MWidget : MonoBehaviour
             case InteractorState.Normal:
             case InteractorState.Disabled:
             default:
-                if (scrollView != null) scrollView.SetActive(false);
+                if (scrollView != null) 
+                {
+                    scrollView.SetActive(false);
+                    if(scrollRect) scrollRect.verticalNormalizedPosition = 1.0f;
+                }
                 ClearItemList();
                 break;
         }
@@ -53,6 +62,8 @@ public class MWidget : MonoBehaviour
 
         if (!_isItemListGenerated)
         {
+            bool isTargetFounded = false;
+
             // [방어 코드] 감지된 타겟이 없으면 리턴
             if (_coneDetector.detectedTargets == null || _coneDetector.detectedTargets.Count == 0) return;
 
@@ -66,6 +77,20 @@ public class MWidget : MonoBehaviour
                 newItem.transform.localRotation = Quaternion.identity;
                 newItem.name = _coneDetector.detectedTargets[i].name;
                 _items.Add(newItem);
+
+                if(isTargetFounded == false &&_coneDetector.detectedTargets[i].GetComponent<MoonObject>())
+                {
+                    MoonObject moonObject = _coneDetector.detectedTargets[i].GetComponent<MoonObject>();
+                    if(moonObject.IsTarget())
+                    {
+                        if(newItem.GetComponent<MoonItem>())
+                        {
+                            MoonItem moonItem = newItem.GetComponent<MoonItem>();
+                            moonItem.SetTarget();
+                            isTargetFounded = true;
+                        }
+                    }
+                }
             }
 
             _isItemListGenerated = true;
@@ -161,7 +186,7 @@ public class MWidget : MonoBehaviour
 
     public void SelectItem()
     {
-        Debug.Log("Select Item!");
+        //Debug.Log("Select Item!");
         if (_selectedItem)
         {
             // 인덱스 기반으로 안전하게 객체 가져오기
@@ -171,19 +196,23 @@ public class MWidget : MonoBehaviour
             {
                 if (moonObject.IsTarget())
                 {
-                    Debug.LogWarning(moonObject.gameObject.name + " is Selected, Correct Item!");
+                    //Debug.LogWarning(moonObject.gameObject.name + " is Selected, Correct Item!");
                     ClearItemList();
+                    MoonObjectSpawner.Instance.RecordTCT();
                     MoonObjectSpawner.Instance.ReGenerateObjects();
                 }
                 else
                 {
-                    Debug.LogWarning(moonObject.gameObject.name + " is Selected, Wrong Item!");
+                    //Debug.LogWarning(moonObject.gameObject.name + " is Selected, Wrong Item!");
+                    ClearItemList();
+                    MoonObjectSpawner.Instance.ReGenerateObjects();
                 }
             }
             else
             {
                 Debug.LogWarning("Target object lost or invalid!");
                 // 상황에 따라 UI를 리프레시하거나 닫는 로직 추가 가능
+                scrollView.SetActive(false);
             }
         }
     }
