@@ -12,6 +12,8 @@ public class ExperimentManager : Singleton<ExperimentManager>
     public int experimentCode;
 
     private List<float> tctList = new List<float>();
+    private int _successCount = 0;
+    private int _failureCount = 0;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -54,32 +56,47 @@ public class ExperimentManager : Singleton<ExperimentManager>
 
     private void SaveToCSV()
     {
-        // 1. 파일 이름 설정 (날짜_시간_Result.csv) 중복 방지
+        // 1. 파일 이름 설정
         string fileName = $"ExperimentResult_{experimentCode}.csv";
         
-        // 2. 저장 경로 설정 (Assets 폴더 경로)
-        // 빌드 후에는 실행 파일 옆 데이터 폴더 등에 저장됨
+        // 2. 저장 경로 설정
         string filePath = Path.Combine(Application.dataPath, fileName);
+
+        float totalTCT = 0f;
 
         try
         {
-            // 3. StreamWriter를 사용해 파일 작성
             using (StreamWriter writer = new StreamWriter(filePath, false, Encoding.UTF8))
             {
-                // 헤더(컬럼 이름) 작성
+                // [섹션 1] Trial 별 상세 데이터
                 writer.WriteLine("Trial_Index,Task_Completion_Time");
-
-                // 리스트에 있는 데이터 한 줄씩 작성
+                
                 for (int i = 0; i < tctList.Count; i++)
                 {
-                    // 예: 1, 3.452
-                    // 인덱스는 0부터 시작하므로 +1을 해서 1부터 시작하게 함
                     string line = $"{i + 1},{tctList[i]}";
                     writer.WriteLine(line);
+                    
+                    // 합계 누적
+                    totalTCT += tctList[i];
                 }
+
+                // 평균 계산 (데이터가 0개일 경우 0으로 처리하여 에러 방지)
+                float averageTCT = tctList.Count > 0 ? totalTCT / tctList.Count : 0f;
+
+                // [섹션 2] 실험 요약 데이터
+                writer.WriteLine(); // 빈 줄 추가
+                writer.WriteLine("Metric,Value"); // 요약 정보 헤더
+                
+                // 요청하신 평균 TCT 추가
+                writer.WriteLine($"Average_TCT,{averageTCT}");
+                
+                writer.WriteLine($"Total_Success,{_successCount}");
+                writer.WriteLine($"Total_Failure,{_failureCount}");
+                writer.WriteLine($"Total_Trials,{tctList.Count}");
             }
 
             Debug.LogWarning($"CSV 파일이 성공적으로 저장되었습니다: {filePath}");
+            Debug.Log($"Avg TCT: {totalTCT / tctList.Count}, Success: {_successCount}, Failure: {_failureCount}");
         }
         catch (System.Exception e)
         {
@@ -98,6 +115,18 @@ public class ExperimentManager : Singleton<ExperimentManager>
         {
             // 리스트가 꽉 찼을 때 처리 (이미 외부에서 EndExperiment를 호출한다면 여기서 리턴만 해도 무방)
             return;
+        }
+    }
+
+    public void AddCount(bool input)
+    {
+        if(input == true)
+        {
+            _successCount += 1;
+        }
+        else
+        {
+            _failureCount += 1;
         }
     }
 }

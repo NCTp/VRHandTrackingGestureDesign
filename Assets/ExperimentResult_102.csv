@@ -1,0 +1,11 @@
+﻿Trial_Index,Task_Completion_Time
+1,2.356763
+2,2.195274
+3,2.026562
+4,2.056954
+5,6.639538
+
+Metric,Value
+Total_Success,4
+Total_Failure,1
+Total_Trials,5

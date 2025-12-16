@@ -185,7 +185,7 @@ public class MoonObjectSpawner : Singleton<MoonObjectSpawner>
         //Debug.LogWarning("Objects Cleared!");
     }
 
-    public void RecordTCT()
+    public void RecordTCT(bool input)
     {
         // --- [추가됨] 오브젝트가 존재했다면, 현재 시간과 생성 시간의 차이를 계산하여 출력합니다. ---
         if (_moonObjects.Count > 0)
@@ -193,6 +193,7 @@ public class MoonObjectSpawner : Singleton<MoonObjectSpawner>
             float duration = Time.time - _generationStartTime;
             //Debug.LogWarning($"[Result] Task Duration (Generate to Clear): {duration:F4} seconds");
             ExperimentManager.Instance.SaveTaskCompletionTimeEachTrial(duration);
+            ExperimentManager.Instance.AddCount(input);
             _spawnCount -= 1;
         }
     }

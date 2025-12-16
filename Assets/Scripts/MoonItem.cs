@@ -40,11 +40,12 @@ public class MoonItem : MonoBehaviour
     {
         if(isTargetItem)
         {
-            MoonObjectSpawner.Instance.RecordTCT();
+            MoonObjectSpawner.Instance.RecordTCT(true);
             MoonObjectSpawner.Instance.ReGenerateObjects();
         }
         else
         {
+            MoonObjectSpawner.Instance.RecordTCT(false);
             MoonObjectSpawner.Instance.ReGenerateObjects();
         }
     }   

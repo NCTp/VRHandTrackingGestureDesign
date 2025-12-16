@@ -198,13 +198,14 @@ public class MWidget : MonoBehaviour
                 {
                     //Debug.LogWarning(moonObject.gameObject.name + " is Selected, Correct Item!");
                     ClearItemList();
-                    MoonObjectSpawner.Instance.RecordTCT();
+                    MoonObjectSpawner.Instance.RecordTCT(true);
                     MoonObjectSpawner.Instance.ReGenerateObjects();
                 }
                 else
                 {
                     //Debug.LogWarning(moonObject.gameObject.name + " is Selected, Wrong Item!");
                     ClearItemList();
+                    MoonObjectSpawner.Instance.RecordTCT(false);
                     MoonObjectSpawner.Instance.ReGenerateObjects();
                 }
             }

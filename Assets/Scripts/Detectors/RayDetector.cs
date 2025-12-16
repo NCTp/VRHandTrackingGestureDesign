@@ -102,7 +102,7 @@ public class RayDetector : MonoBehaviour
                     // null 체크 추가 (안전성 강화)
                     if(moonObject && moonObject.IsTarget()) 
                     {
-                        MoonObjectSpawner.Instance.RecordTCT();
+                        MoonObjectSpawner.Instance.RecordTCT(true);
                         MoonObjectSpawner.Instance.ReGenerateObjects();
                         // 선택 후 로직에 따라 _prevMoonObject를 초기화할지 결정 필요
                         // 보통 재생성되면 기존 참조는 의미가 없어지므로 초기화 추천:
@@ -111,6 +111,7 @@ public class RayDetector : MonoBehaviour
                     }
                     else
                     {
+                        MoonObjectSpawner.Instance.RecordTCT(false);
                         MoonObjectSpawner.Instance.ReGenerateObjects();
                         // 선택 후 로직에 따라 _prevMoonObject를 초기화할지 결정 필요
                         // 보통 재생성되면 기존 참조는 의미가 없어지므로 초기화 추천:
