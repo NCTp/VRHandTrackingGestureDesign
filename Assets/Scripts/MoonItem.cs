@@ -7,6 +7,7 @@ public class MoonItem : MonoBehaviour
     public TextMeshProUGUI text;
     public UnityEngine.UI.Outline outline;
     public Image image;
+    public Color targetColor;
     public bool isTargetItem = false;
     void Awake()
     {
@@ -32,7 +33,7 @@ public class MoonItem : MonoBehaviour
     }
     public void SetTarget()
     {
-        image.color = Color.red; 
+        image.color = targetColor; 
         isTargetItem = true;
     } 
 

@@ -104,6 +104,12 @@ public class MWidget : MonoBehaviour
                 MoonObject moonObject = GetSafeMoonObject(0);
                 if (moonObject) moonObject.SetStatus(MoonObject.MoonObjectStatus.Selected);
             }
+
+            if (content != null)
+            {
+                // Content에 붙어있는 LayoutGroup과 SizeFitter가 즉시 계산하도록 강제함
+                //LayoutRebuilder.ForceRebuildLayoutImmediate(content.GetComponent<RectTransform>());
+            }
         }
     }
 
