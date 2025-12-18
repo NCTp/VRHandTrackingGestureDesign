@@ -93,6 +93,7 @@ MonoBehaviour:
   text: {fileID: 7923379044079877567}
   outline: {fileID: 8367330091062805949}
   image: {fileID: 933745255321574395}
+  targetColor: {r: 0.4971643, g: 1, b: 0.25, a: 1}
   isTargetItem: 0
 --- !u!114 &8367330091062805949
 MonoBehaviour:
