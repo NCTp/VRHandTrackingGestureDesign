@@ -100,9 +100,28 @@ public class ConeDetector : MonoBehaviour
             else 
             {
                 // [선택 사항] 이미 리스트에 있지만, 상태 강제 동기화가 필요하다면 여기서 처리
-                // MoonObject mObject = detectedObj.GetComponent<MoonObject>();
-                // if (mObject) mObject.SetStatus(MoonObject.MoonObjectStatus.Detected);
+                MoonObject mObject = detectedObj.GetComponent<MoonObject>();
+                if (mObject) mObject.SetStatus(MoonObject.MoonObjectStatus.Detected);
             }
+        }
+
+        if (detectedTargets.Count > 1) // 2개 이상일 때만 정렬
+        {
+            detectedTargets.Sort((a, b) => 
+            {
+                if (a == null || b == null) return 0;
+
+                // 각 객체까지의 방향 벡터 계산
+                Vector3 dirA = (a.transform.position - _rayOrigin).normalized;
+                Vector3 dirB = (b.transform.position - _rayOrigin).normalized;
+
+                // Ray Forward와의 각도 계산 (작을수록 중앙에 가까움)
+                float angleA = Vector3.Angle(_rayForward, dirA);
+                float angleB = Vector3.Angle(_rayForward, dirB);
+
+                // 오름차순 정렬 (angleA가 작으면 앞으로)
+                return angleA.CompareTo(angleB);
+            });
         }
     }
 

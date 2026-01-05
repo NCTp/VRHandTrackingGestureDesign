@@ -57,7 +57,7 @@ public class ExperimentManager : Singleton<ExperimentManager>
     private void SaveToCSV()
     {
         // 1. 파일 이름 설정
-        string fileName = $"ExperimentResult_{experimentCode}.csv";
+        string fileName = $"ExperimentResult_{experimentCode + spawnDensity.ToString()}.csv";
         
         // 2. 저장 경로 설정
         string filePath = Path.Combine(Application.dataPath, fileName);

@@ -12,7 +12,7 @@ public class MoonObjectSpawner : Singleton<MoonObjectSpawner>
     [Header("Spawn Settings")]
     public GameObject moonObject; 
     private int _objectNumber = 50; 
-    private float radius = 5f; 
+    private float radius = 3f; 
     private int _spawnCount = 30;
 
     [Header("Distance Constraints")]
