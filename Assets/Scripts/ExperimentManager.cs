@@ -9,7 +9,7 @@ public class ExperimentManager : Singleton<ExperimentManager>
     [Header("Experiment Settings")]
     public int spawnCount = 10;
     public MoonObjectSpawner.SpawnDensity spawnDensity = MoonObjectSpawner.SpawnDensity.Normal; // MoonObjectSpawner 참조가 필요하다면 주석 해제
-    public int experimentCode;
+    public string experimentCode;
 
     private List<float> tctList = new List<float>();
     private int _successCount = 0;

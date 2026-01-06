@@ -12,7 +12,7 @@ public class MoonObjectSpawner : Singleton<MoonObjectSpawner>
     [Header("Spawn Settings")]
     public GameObject moonObject; 
     private int _objectNumber = 50; 
-    private float radius = 3f; 
+    private float _radius = 2.0f; 
     private int _spawnCount = 30;
 
     [Header("Distance Constraints")]
@@ -30,25 +30,30 @@ public class MoonObjectSpawner : Singleton<MoonObjectSpawner>
     private float _generationStartTime; 
     // ------------------------------------
 
+    [Header("Occlusion Settings")]
+    public Transform userHead; // [추가됨] VR 카메라(CenterEyeAnchor)를 여기에 할당하세요.
+    [Range(0.1f, 1.0f)]
+    public float occlusionDistance = 0.5f; // [추가됨] 타겟보다 얼마나 앞에 배치할지 (단위: 미터)
+
+    // [추가됨] 부분 차폐를 위한 오프셋 (단위: 미터)
+    // 오브젝트의 크기(반지름)에 따라 조절하세요. 
+    // 예: 오브젝트 지름이 0.2라면, 0.1 정도 주면 절반 정도 겹침.
+    [Range(0.01f, 0.5f)]
+    public float partialOcclusionOffset = 0.1f;
+
     void Start()
     {
         //ReGenerateObjects();
         switch(ExperimentManager.Instance.spawnDensity)
         {
             case SpawnDensity.Low: 
-                _objectNumber = 50;
-                _minDistanceBetweenObjects = 1.0f;
-                _maxDistanceBetweenObjects = 1.5f;
+                SetSpawnVariables(50,2.5f,1.0f,1.5f);
                 break;
             case SpawnDensity.Normal:
-                _objectNumber = 75;
-                _minDistanceBetweenObjects = 1.0f;
-                _maxDistanceBetweenObjects = 1.25f;
+                SetSpawnVariables(75,2.5f,1.0f,1.25f);
                 break;
             case SpawnDensity.High:
-                _objectNumber = 100;
-                _minDistanceBetweenObjects = 0.75f;
-                _maxDistanceBetweenObjects = 1.25f;
+                SetSpawnVariables(100,2.5f,0.75f,1.0f);
                 break;
             default:
                 break;
@@ -56,6 +61,14 @@ public class MoonObjectSpawner : Singleton<MoonObjectSpawner>
 
         _spawnCount = ExperimentManager.Instance.spawnCount;
 
+    }
+
+    private void SetSpawnVariables(int objectNumber, float radius, float minDistanceBetweenObjects, float maxDistanceBetweenObjects)
+    {
+        _objectNumber = objectNumber;
+        _radius = radius;
+        _minDistanceBetweenObjects = minDistanceBetweenObjects;
+        _maxDistanceBetweenObjects = maxDistanceBetweenObjects;
     }
 
     void Update()
@@ -84,7 +97,7 @@ public class MoonObjectSpawner : Singleton<MoonObjectSpawner>
         }
 
         // 1. 첫 번째 오브젝트 배치
-        Vector3 firstPos = transform.position + Random.insideUnitSphere * radius;
+        Vector3 firstPos = transform.position + Random.insideUnitSphere * _radius;
         spawnedPositions.Add(firstPos);
         GameObject firstObject = Instantiate(moonObject, firstPos, Quaternion.identity, transform);
         firstObject.gameObject.name = _moonObjects.Count.ToString();
@@ -103,7 +116,7 @@ public class MoonObjectSpawner : Singleton<MoonObjectSpawner>
                 Vector3 candidatePos = anchorPos + Random.onUnitSphere * distance;
 
                 // 유효성 검사
-                if (Vector3.Distance(candidatePos, transform.position) > radius) continue;
+                if (Vector3.Distance(candidatePos, transform.position) > _radius) continue;
 
                 bool respectsMinDistance = true;
                 foreach (Vector3 pos in spawnedPositions)
@@ -140,24 +153,23 @@ public class MoonObjectSpawner : Singleton<MoonObjectSpawner>
     void OnDrawGizmosSelected()
     {
         Gizmos.color = new Color(0, 1, 1, 0.3f);
-        Gizmos.DrawSphere(transform.position, radius);
+        Gizmos.DrawSphere(transform.position, _radius);
     }
 
     public void ReGenerateObjects()
     {
-        
         if(_spawnCount > 0)
         {
             ClearObjects();
             GenerateObjects();
-            SetTargetObject();
-            //_spawnCount -= 1;
+            SetTargetObject(); 
+            // Target 설정 후 가리는 로직 실행
+            EnsureTargetOcclusion(); // [추가됨] 여기서 가리기 실행
         }
         else
         {
             ClearObjects();
             ExperimentManager.Instance.EndExperiment();
-            //Debug.Log("Experiment End!");
         }
     }
 
@@ -175,6 +187,56 @@ public class MoonObjectSpawner : Singleton<MoonObjectSpawner>
         }
     }
 
+    // [추가됨] 타겟을 가리는 핵심 함수
+    void EnsureTargetOcclusion()
+    {
+        // 1. 안전 장치
+        if (_targetMoonObject == null || _moonObjects.Count < 2 || userHead == null) 
+        {
+            Debug.LogWarning("가리기(Occlusion) 조건 부족");
+            return;
+        }
+
+        // 2. 방해꾼(Blocker) 선정
+        GameObject blocker = null;
+        int safetyCount = 0;
+        while(blocker == null || blocker == _targetMoonObject.gameObject)
+        {
+            int rndIdx = Random.Range(0, _moonObjects.Count);
+            blocker = _moonObjects[rndIdx];
+            
+            safetyCount++;
+            if(safetyCount > 100) break; // 무한루프 방지
+        }
+        
+        if (blocker == null) return;
+
+        // 3. 위치 계산 (벡터 수학)
+        Vector3 headPos = userHead.position;
+        Vector3 targetPos = _targetMoonObject.transform.position;
+        
+        // (A) 시선 방향 벡터 (눈 -> 타겟)
+        Vector3 directionToTarget = (targetPos - headPos).normalized;
+        
+        // (B) 기본 차폐 위치 (타겟 바로 앞)
+        Vector3 baseBlockerPos = targetPos - (directionToTarget * occlusionDistance);
+
+        // (C) [핵심] 시선에 수직인 랜덤한 방향 구하기
+        // 무작위 벡터를 시선 벡터가 만드는 평면에 투영시켜서 수직 성분만 뽑아냄
+        Vector3 randomDir = Random.onUnitSphere;
+        Vector3 perpendicularDir = Vector3.ProjectOnPlane(randomDir, directionToTarget).normalized;
+
+        // (D) 최종 위치: 기본 위치에서 수직 방향으로 살짝 이동
+        // 이렇게 하면 타겟이 Blocker 뒤에서 살짝 '빼꼼' 하고 보이게 됩니다.
+        Vector3 finalPos = baseBlockerPos + (perpendicularDir * partialOcclusionOffset);
+
+        // 4. 방해꾼 이동
+        blocker.transform.position = finalPos;
+        
+        // (선택) 방해꾼이 타겟을 바라보게 하면 더 자연스러움
+        // blocker.transform.LookAt(headPos); 
+    }
+
     void ClearObjects()
     { 
         for(int i = 0; i < _moonObjects.Count; i++)
@@ -187,15 +249,26 @@ public class MoonObjectSpawner : Singleton<MoonObjectSpawner>
 
     public void RecordTCT(bool input)
     {
-        // --- [추가됨] 오브젝트가 존재했다면, 현재 시간과 생성 시간의 차이를 계산하여 출력합니다. ---
-        if (_moonObjects.Count > 0)
+        // 선택이 틀렸다면
+        if(_moonObjects.Count > 0 && input == false)
+        {
+            ExperimentManager.Instance.AddCount(input);
+            _spawnCount -= 1;
+
+            return;
+        }
+        // 만약 잘 선택했다면
+        if (_moonObjects.Count > 0 && input == true)
         {
             float duration = Time.time - _generationStartTime;
             //Debug.LogWarning($"[Result] Task Duration (Generate to Clear): {duration:F4} seconds");
             ExperimentManager.Instance.SaveTaskCompletionTimeEachTrial(duration);
             ExperimentManager.Instance.AddCount(input);
             _spawnCount -= 1;
+
+            return;
         }
+
     }
 
     public void ClearObjectsStatus()

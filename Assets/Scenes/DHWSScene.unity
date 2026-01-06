@@ -1478,6 +1478,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4106158400436859064, guid: 49c8a4f3b13316447a2d65eff9c82fb5, type: 3}
+      propertyPath: userHead
+      value: 
+      objectReference: {fileID: 4929279918643699786}
+    - target: {fileID: 4106158400436859064, guid: 49c8a4f3b13316447a2d65eff9c82fb5, type: 3}
       propertyPath: moonObject
       value: 
       objectReference: {fileID: 7127677661315948393, guid: f911761968e6a4b43a727de1bcfdd5b2, type: 3}
@@ -3396,6 +3400,11 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 1370478141}
   m_SourcePrefab: {fileID: 100100000, guid: 367489f1b4a61364a8411ca1358004cd, type: 3}
+--- !u!4 &4929279918643699786 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 7777498288044412235, guid: 367489f1b4a61364a8411ca1358004cd, type: 3}
+  m_PrefabInstance: {fileID: 4929279918643699785}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

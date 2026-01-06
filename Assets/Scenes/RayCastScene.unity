@@ -479,12 +479,20 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4106158400436859064, guid: 49c8a4f3b13316447a2d65eff9c82fb5, type: 3}
+      propertyPath: userHead
+      value: 
+      objectReference: {fileID: 1525106758}
+    - target: {fileID: 4106158400436859064, guid: 49c8a4f3b13316447a2d65eff9c82fb5, type: 3}
       propertyPath: moonObject
       value: 
       objectReference: {fileID: 7127677661315948393, guid: f911761968e6a4b43a727de1bcfdd5b2, type: 3}
     - target: {fileID: 4106158400436859064, guid: 49c8a4f3b13316447a2d65eff9c82fb5, type: 3}
       propertyPath: objectNumber
       value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 4106158400436859064, guid: 49c8a4f3b13316447a2d65eff9c82fb5, type: 3}
+      propertyPath: partialOcclusionOffset
+      value: 0.1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -575,7 +583,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 781947586234407856, guid: 79153ecc5dee5a9468b38a24793a838e, type: 3}
       propertyPath: spawnCount
-      value: 30
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 781947586234407856, guid: 79153ecc5dee5a9468b38a24793a838e, type: 3}
       propertyPath: spawnDensity
@@ -583,7 +591,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 781947586234407856, guid: 79153ecc5dee5a9468b38a24793a838e, type: 3}
       propertyPath: experimentCode
-      value: 10
+      value: 260106_R
       objectReference: {fileID: 0}
     - target: {fileID: 5075522666291537120, guid: 79153ecc5dee5a9468b38a24793a838e, type: 3}
       propertyPath: m_Name
@@ -594,6 +602,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 79153ecc5dee5a9468b38a24793a838e, type: 3}
+--- !u!4 &1525106758 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6490324852614538985, guid: f4e89dc301a360b4ca6ea1e2e6b2d02a, type: 3}
+  m_PrefabInstance: {fileID: 303455199697786388}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1718120825 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 9154073239322603148, guid: f4e89dc301a360b4ca6ea1e2e6b2d02a, type: 3}
@@ -895,6 +908,6 @@ SceneRoots:
   - {fileID: 410087041}
   - {fileID: 832575519}
   - {fileID: 1975376534}
-  - {fileID: 1000830001}
   - {fileID: 303455199697786388}
+  - {fileID: 1000830001}
   - {fileID: 1049187371}
