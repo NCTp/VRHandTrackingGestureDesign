@@ -1,5 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Collections; // [필수 추가] IEnumerator 사용을 위해 필요
+using System.Linq;
 
 public class MoonObjectSpawner : Singleton<MoonObjectSpawner>
 {
@@ -38,8 +40,14 @@ public class MoonObjectSpawner : Singleton<MoonObjectSpawner>
     // [추가됨] 부분 차폐를 위한 오프셋 (단위: 미터)
     // 오브젝트의 크기(반지름)에 따라 조절하세요. 
     // 예: 오브젝트 지름이 0.2라면, 0.1 정도 주면 절반 정도 겹침.
-    [Range(0.01f, 0.5f)]
-    public float partialOcclusionOffset = 0.1f;
+    private float _partialOcclusionOffset = 0.1f;
+    private float _offset = 0.1f;
+    // [설정] 생성 대기 시간
+    [Header("Time Settings")]
+    public float spawnDelay = 3.0f; // 3초 딜레이
+
+    [Header("UI")]
+    public CanvasTimer canvasTimer; // [할당 필요] 에디터에서 CanvasTimer가 붙은 오브젝트를 연결하세요.
 
     void Start()
     {
@@ -47,13 +55,16 @@ public class MoonObjectSpawner : Singleton<MoonObjectSpawner>
         switch(ExperimentManager.Instance.spawnDensity)
         {
             case SpawnDensity.Low: 
-                SetSpawnVariables(50,2.5f,1.0f,1.5f);
+                _offset = Random.Range(0.1f, 0.15f);
+                SetSpawnVariables(50,2.5f,1.0f,1.5f, _offset);
                 break;
             case SpawnDensity.Normal:
-                SetSpawnVariables(75,2.5f,1.0f,1.25f);
+                _offset = Random.Range(0.075f, 0.1f);
+                SetSpawnVariables(75,2.5f,0.75f,1.25f, _offset);
                 break;
             case SpawnDensity.High:
-                SetSpawnVariables(100,2.5f,0.75f,1.0f);
+                _offset = Random.Range(0.05f, 0.1f);
+                SetSpawnVariables(100,2.5f,0.75f,1.0f, _offset);
                 break;
             default:
                 break;
@@ -63,91 +74,116 @@ public class MoonObjectSpawner : Singleton<MoonObjectSpawner>
 
     }
 
-    private void SetSpawnVariables(int objectNumber, float radius, float minDistanceBetweenObjects, float maxDistanceBetweenObjects)
+    private void SetSpawnVariables(int objectNumber, float radius, float minDistanceBetweenObjects, float maxDistanceBetweenObjects, float occlusionOffset)
     {
         _objectNumber = objectNumber;
         _radius = radius;
         _minDistanceBetweenObjects = minDistanceBetweenObjects;
         _maxDistanceBetweenObjects = maxDistanceBetweenObjects;
+        _partialOcclusionOffset = occlusionOffset;
     }
 
     void Update()
     {
-    }
-
-    public void GenerateObjects()
-    {
-        // 기존에 스폰된 오브젝트들 삭제 (안전장치)
-        foreach (Transform child in transform)
-        {
-            Destroy(child.gameObject);
-        }
-        spawnedPositions.Clear();
-
-        if (_objectNumber <= 0 || moonObject == null)
-        {
-            Debug.LogWarning("스폰할 오브젝트나 개수가 설정되지 않았습니다.");
-            return;
-        }
         
-        if (_minDistanceBetweenObjects > _maxDistanceBetweenObjects)
-        {
-            Debug.LogError("최소 거리가 최대 거리보다 클 수 없습니다.");
-            return;
-        }
+    }
+    // 기존 MoonObjectSpawner 내부에 추가
+    public List<Vector3> GeneratePoissonPoints3D(float radius, float minDistance, int targetCount, int k = 30)
+    {
+        // 1. 반환할 포인트 리스트
+        List<Vector3> points = new List<Vector3>();
+        
+        // 2. 활성 리스트 (새로운 점을 낳을 수 있는 부모 점들)
+        List<Vector3> activeList = new List<Vector3>();
 
-        // 1. 첫 번째 오브젝트 배치
-        Vector3 firstPos = transform.position + Random.insideUnitSphere * _radius;
-        spawnedPositions.Add(firstPos);
-        GameObject firstObject = Instantiate(moonObject, firstPos, Quaternion.identity, transform);
-        firstObject.gameObject.name = _moonObjects.Count.ToString();
-        _moonObjects.Add(firstObject);
+        // 3. 첫 번째 점 추가 (구의 중심 혹은 랜덤)
+        Vector3 firstPoint = Random.insideUnitSphere * radius; 
+        // 혹은 중심에서 시작하려면: Vector3 firstPoint = Vector3.zero;
+        
+        points.Add(firstPoint);
+        activeList.Add(firstPoint);
 
-        // 2. 나머지 오브젝트 배치
-        for (int i = 1; i < _objectNumber; i++)
+        // 4. 루프 시작 (활성 리스트가 빌 때까지 혹은 목표 개수 도달 시)
+        // *주의: Poisson은 원래 꽉 채우는게 목적이나, 성능을 위해 targetCount의 2배 정도면 멈추도록 설정 가능
+        while (activeList.Count > 0)
         {
-            bool positionFound = false;
-            for (int attempt = 0; attempt < maxPlacementAttempts; attempt++)
+            int randIndex = Random.Range(0, activeList.Count);
+            Vector3 center = activeList[randIndex];
+            bool found = false;
+
+            for (int i = 0; i < k; i++)
             {
-                int anchorIndex = Random.Range(0, spawnedPositions.Count);
-                Vector3 anchorPos = spawnedPositions[anchorIndex];
+                // 반지름 r ~ 2r 사이의 랜덤한 점 생성 (도넛 모양)
+                Vector3 randomDir = Random.onUnitSphere;
+                float distance = Random.Range(minDistance, 2 * minDistance);
+                Vector3 candidate = center + randomDir * distance;
 
-                float distance = Random.Range(_minDistanceBetweenObjects, _maxDistanceBetweenObjects);
-                Vector3 candidatePos = anchorPos + Random.onUnitSphere * distance;
+                // [검증 1] 전체 생성 구역(Radius) 안에 있는가? (transform.position 기준 로컬 좌표라 가정하고 크기만 체크)
+                if (candidate.magnitude > radius) continue;
 
-                // 유효성 검사
-                if (Vector3.Distance(candidatePos, transform.position) > _radius) continue;
-
-                bool respectsMinDistance = true;
-                foreach (Vector3 pos in spawnedPositions)
+                // [검증 2] 기존 점들과 너무 가깝지 않은가?
+                // (최적화를 위해 Grid를 쓰기도 하지만, N < 500 일 땐 이중 루프도 충분히 빠릅니다)
+                bool farEnough = true;
+                foreach (var p in points)
                 {
-                    if (Vector3.Distance(candidatePos, pos) < _minDistanceBetweenObjects)
+                    if (Vector3.SqrMagnitude(candidate - p) < minDistance * minDistance)
                     {
-                        respectsMinDistance = false;
+                        farEnough = false;
                         break;
                     }
                 }
 
-                if (!respectsMinDistance) continue;
-
-                positionFound = true;
-                spawnedPositions.Add(candidatePos);
-                GameObject temp = Instantiate(moonObject, candidatePos, Quaternion.identity, transform);
-                temp.gameObject.name = _moonObjects.Count.ToString();
-                _moonObjects.Add(temp);
-                break; 
+                // 유효한 점 발견!
+                if (farEnough)
+                {
+                    points.Add(candidate);
+                    activeList.Add(candidate);
+                    found = true;
+                    break; // 한 번 찾으면 바로 다음 부모로 넘어감 (Bridson 방식 변형)
+                }
             }
 
-            if (!positionFound)
+            // k번 시도해도 실패하면 이 점 근처는 꽉 찬 것임 -> 활성 리스트에서 제거
+            if (!found)
             {
-                Debug.LogWarning($"오브젝트 {i + 1}의 유효한 위치를 찾지 못했습니다. 스폰을 중단합니다.");
+                activeList.RemoveAt(randIndex);
             }
         }
 
-        // --- [추가됨] 생성 로직이 끝난 직후 시간을 기록합니다. ---
+        return points;
+    }
+
+    public void GenerateObjects()
+    {
+        ClearObjects(); // 기존 삭제
+
+        // 1. Poisson Disk로 후보 위치들을 넉넉하게 생성 (목표 개수보다 여유 있게 뽑힘)
+        // targetCount 인자는 루프 조기 종료용으로만 쓰거나 생략해도 됩니다.
+        List<Vector3> candidates = GeneratePoissonPoints3D(_radius, _minDistanceBetweenObjects, _objectNumber * 2);
+
+        // 2. 생성된 포인트가 목표 개수보다 적다면 경고 (밀도 설정 오류)
+        if (candidates.Count < _objectNumber)
+        {
+            Debug.LogWarning($"설정된 밀도(MinDist: {_minDistanceBetweenObjects})가 너무 높아 " +
+                            $"목표 개수({_objectNumber})를 채우지 못하고 {candidates.Count}개만 생성되었습니다.");
+        }
+
+        // 3. 무작위로 섞음 (Shuffle) - 앞쪽부터 잘라 쓰기 위해
+        // (System.Linq가 없으면 직접 Swap 셔플 구현 필요)
+        var shuffledPositions = candidates.OrderBy(x => Random.value).Take(_objectNumber).ToList();
+
+        // 4. 오브젝트 인스턴스화
+        for (int i = 0; i < shuffledPositions.Count; i++)
+        {
+            // 로컬 좌표로 계산했으므로 transform.position을 더해줌
+            Vector3 worldPos = transform.position + shuffledPositions[i];
+            
+            GameObject temp = Instantiate(moonObject, worldPos, Quaternion.identity, transform);
+            temp.name = i.ToString();
+            _moonObjects.Add(temp);
+        }
+
         _generationStartTime = Time.time;
-        //Debug.LogWarning($"[Time Check] Objects Generated at: {_generationStartTime}");
-        // --------------------------------------------------------
     }
 
     void OnDrawGizmosSelected()
@@ -160,17 +196,52 @@ public class MoonObjectSpawner : Singleton<MoonObjectSpawner>
     {
         if(_spawnCount > 0)
         {
-            ClearObjects();
-            GenerateObjects();
-            SetTargetObject(); 
-            // Target 설정 후 가리는 로직 실행
-            EnsureTargetOcclusion(); // [추가됨] 여기서 가리기 실행
+            // 실행 중인 코루틴이 있다면 중복 실행 방지를 위해 정지 (선택 사항)
+            StopAllCoroutines(); 
+            
+            // 3초 뒤에 생성하는 시퀀스 시작
+            StartCoroutine(SpawnSequence());
         }
         else
         {
             ClearObjects();
             ExperimentManager.Instance.EndExperiment();
         }
+    }
+    // [추가됨] 3초 대기 후 생성을 담당하는 코루틴
+    IEnumerator SpawnSequence()
+    {
+        // 1. 화면 비우기
+        ClearObjects(); 
+
+        // 2. 타이머 UI 켜기
+        if(canvasTimer != null) canvasTimer.SetVisible(true);
+
+        // 3. 카운트다운 로직
+        float remainingTime = spawnDelay;
+        
+        while(remainingTime > 0)
+        {
+            // UI 갱신
+            if(canvasTimer != null) 
+            {
+                canvasTimer.SetTimerText(remainingTime);
+            }
+
+            // 시간 감소
+            remainingTime -= Time.deltaTime;
+
+            // 다음 프레임까지 대기
+            yield return null; 
+        }
+
+        // 4. 대기 종료 후 타이머 UI 끄기
+        if(canvasTimer != null) canvasTimer.SetVisible(false);
+
+        // 5. 오브젝트 생성 로직 실행
+        GenerateObjects(); 
+        SetTargetObject(); 
+        EnsureTargetOcclusion();
     }
 
     void SetTargetObject()
@@ -228,7 +299,7 @@ public class MoonObjectSpawner : Singleton<MoonObjectSpawner>
 
         // (D) 최종 위치: 기본 위치에서 수직 방향으로 살짝 이동
         // 이렇게 하면 타겟이 Blocker 뒤에서 살짝 '빼꼼' 하고 보이게 됩니다.
-        Vector3 finalPos = baseBlockerPos + (perpendicularDir * partialOcclusionOffset);
+        Vector3 finalPos = baseBlockerPos + (perpendicularDir * _partialOcclusionOffset);
 
         // 4. 방해꾼 이동
         blocker.transform.position = finalPos;

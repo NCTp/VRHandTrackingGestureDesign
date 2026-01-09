@@ -1,0 +1,11 @@
+﻿Trial_Index,Task_Completion_Time
+1,1.430453
+2,1.749886
+3,2.819868
+4,2.291315
+
+Metric,Value
+Average_TCT,2.072881
+Total_Success,4
+Total_Failure,1
+Total_Trials,4

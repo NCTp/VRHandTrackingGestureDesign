@@ -22,7 +22,7 @@ public class WristAngleCalculator : MonoBehaviour
     // --- 로직 제어 변수 ---
     private float _initialWristAngle; // Select 시작 시점의 기준 각도
     private bool _isTrackingRotation = false; // 현재 각도 변화를 추적 중인가?
-    private const float ROTATION_THRESHOLD = 60.0f; // 반응할 각도 변화량 (60도)
+    private const float ROTATION_THRESHOLD = 50.0f; // 반응할 각도 변화량 (60도)
 
     void Awake()
     {

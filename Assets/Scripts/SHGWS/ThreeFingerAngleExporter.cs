@@ -30,17 +30,13 @@ public class ThreeFingerAngleExporter : MonoBehaviour
     }
     void Update()
     {
-        // 1. 현재 손목 각도 계산 (이전과 동일)
         Vector3 currentPalmNormal = GetPalmNormal();
         _wristAngle = Vector3.Angle(currentPalmNormal, Vector3.up);
 
-        // 2. RayInteractor 상태 확인
         if (_rayInteractor != null && _rayInteractor.State == InteractorState.Select)
         {
-            // [상태 A] Select 상태임
             if (!_isTrackingRotation)
             {
-                // [진입 시점] 방금 Select가 됨 -> 기준 각도 저장
                 _initialWristAngle = _wristAngle;
                 _isTrackingRotation = true; 
                 Debug.Log($"[Start] 기준 각도 저장됨: {_initialWristAngle:F1}°");
@@ -53,18 +49,13 @@ public class ThreeFingerAngleExporter : MonoBehaviour
                 // 45도 이상 차이가 나면?
                 if (angleDifference >= ROTATION_THRESHOLD)
                 {
-                    OnWristRotatedOverThreshold(); // 특정 함수 호출
-                    
-                    // (선택 사항) 한 번 발동 후 기능을 끌 것인가?
-                    // 끄지 않으면 45도 이상인 상태에서 매 프레임 함수가 호출됨.
-                    // 여기서는 한 번 발동 후 추적을 중지(리셋)하도록 설정했습니다.
+                    OnWristRotatedOverThreshold(); 
                     _isTrackingRotation = false; 
                 }
             }
         }
         else
         {
-            // [상태 B] Select 상태가 아님 (버튼을 뗌) -> 추적 상태 리셋
             if (_isTrackingRotation)
             {
                 _isTrackingRotation = false;
@@ -82,8 +73,6 @@ public class ThreeFingerAngleExporter : MonoBehaviour
             _singleHandGestureWidgetSelector.TurnWristToFace();
         }
         
-        // 여기에 원하는 동작 코드를 넣으세요.
-        // 예: UI 메뉴 열기, 무기 교체, 페이지 스크롤 등
     }
 
 

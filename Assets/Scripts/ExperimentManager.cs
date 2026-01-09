@@ -56,11 +56,22 @@ public class ExperimentManager : Singleton<ExperimentManager>
 
     private void SaveToCSV()
     {
-        // 1. 파일 이름 설정
-        string fileName = $"ExperimentResult_{experimentCode + spawnDensity.ToString()}.csv";
-        
-        // 2. 저장 경로 설정
-        string filePath = Path.Combine(Application.dataPath, fileName);
+        // 1. 파일 이름 설정 (기존과 동일)
+        string fileName = $"ExperimentResult_{experimentCode}_{spawnDensity}.csv";
+
+        // 2. 저장 폴더 경로 설정 (Assets/ExperimentResult)
+        // Application.dataPath는 프로젝트의 "Assets" 폴더를 가리킵니다.
+        string folderPath = Path.Combine(Application.dataPath, "ExperimentResult");
+
+        // 3. 해당 폴더가 없으면 새로 생성
+        if (!Directory.Exists(folderPath))
+        {
+            Directory.CreateDirectory(folderPath);
+            Debug.Log("ExperimentResult 폴더가 생성되었습니다.");
+        }
+
+        // 4. 최종 파일 경로 설정
+        string filePath = Path.Combine(folderPath, fileName);
 
         float totalTCT = 0f;
 
@@ -75,28 +86,28 @@ public class ExperimentManager : Singleton<ExperimentManager>
                 {
                     string line = $"{i + 1},{tctList[i]}";
                     writer.WriteLine(line);
-                    
-                    // 합계 누적
                     totalTCT += tctList[i];
                 }
 
-                // 평균 계산 (데이터가 0개일 경우 0으로 처리하여 에러 방지)
+                // 평균 계산
                 float averageTCT = tctList.Count > 0 ? totalTCT / tctList.Count : 0f;
 
                 // [섹션 2] 실험 요약 데이터
-                writer.WriteLine(); // 빈 줄 추가
-                writer.WriteLine("Metric,Value"); // 요약 정보 헤더
+                writer.WriteLine(); 
+                writer.WriteLine("Metric,Value"); 
                 
-                // 요청하신 평균 TCT 추가
                 writer.WriteLine($"Average_TCT,{averageTCT}");
-                
                 writer.WriteLine($"Total_Success,{_successCount}");
                 writer.WriteLine($"Total_Failure,{_failureCount}");
                 writer.WriteLine($"Total_Trials,{tctList.Count}");
             }
 
-            Debug.LogWarning($"CSV 파일이 성공적으로 저장되었습니다: {filePath}");
-            Debug.Log($"Avg TCT: {totalTCT / tctList.Count}, Success: {_successCount}, Failure: {_failureCount}");
+            Debug.LogWarning($"CSV 파일이 저장되었습니다: {filePath}");
+            
+            // Unity 에디터에서 생성된 파일/폴더를 즉시 인식하도록 새로고침
+            #if UNITY_EDITOR
+            UnityEditor.AssetDatabase.Refresh();
+            #endif
         }
         catch (System.Exception e)
         {
