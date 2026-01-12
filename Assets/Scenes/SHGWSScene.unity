@@ -1316,6 +1316,7 @@ GameObject:
   - component: {fileID: 1216212622}
   - component: {fileID: 1216212621}
   - component: {fileID: 1216212623}
+  - component: {fileID: 1216212624}
   m_Layer: 0
   m_Name: SingleHandGestureWidgetSelector_Right
   m_TagString: Untagged
@@ -1367,6 +1368,24 @@ MonoBehaviour:
   _rayInteractor: {fileID: 636710464}
   Hand: {fileID: 5597255070260046201}
   _singleHandGestureWidgetSelector: {fileID: 1216212621}
+--- !u!114 &1216212624
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1216212618}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28458f71d13043344b383e0b05370da0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isRightHanded: 1
+  Hand: {fileID: 5597255070260046201}
+  _mWidget: {fileID: 890940606}
+  _upThreshold: 60
+  _downThreshold: 30
+  _resetThreshold: 10
 --- !u!114 &1348236943 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 3158494810203084665, guid: c7763086fbfc89641b802d9db4c70f7c, type: 3}
@@ -2421,6 +2440,7 @@ GameObject:
   - component: {fileID: 2121314180}
   - component: {fileID: 2121314182}
   - component: {fileID: 2121314183}
+  - component: {fileID: 2121314184}
   m_Layer: 0
   m_Name: SingleHandGestureWidgetSelector_Left
   m_TagString: Untagged
@@ -2472,6 +2492,24 @@ MonoBehaviour:
   _rayInteractor: {fileID: 1348236943}
   Hand: {fileID: 8373710036113126173}
   _singleHandGestureWidgetSelector: {fileID: 2121314182}
+--- !u!114 &2121314184
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2121314178}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28458f71d13043344b383e0b05370da0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isRightHanded: 0
+  Hand: {fileID: 8373710036113126173}
+  _mWidget: {fileID: 1192191139}
+  _upThreshold: 60
+  _downThreshold: 30
+  _resetThreshold: 10
 --- !u!114 &2133750927 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 7322182343802050595, guid: 19d4f2fc2c9a0ff448ce5354a3a95fbd, type: 3}
@@ -2814,7 +2852,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 781947586234407856, guid: 79153ecc5dee5a9468b38a24793a838e, type: 3}
       propertyPath: spawnCount
-      value: 5
+      value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 781947586234407856, guid: 79153ecc5dee5a9468b38a24793a838e, type: 3}
       propertyPath: spawnDensity

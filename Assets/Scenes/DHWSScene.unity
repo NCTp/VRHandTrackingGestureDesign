@@ -169,11 +169,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 781947586234407856, guid: 79153ecc5dee5a9468b38a24793a838e, type: 3}
       propertyPath: spawnCount
-      value: 5
+      value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 781947586234407856, guid: 79153ecc5dee5a9468b38a24793a838e, type: 3}
       propertyPath: spawnDensity
-      value: 0
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 781947586234407856, guid: 79153ecc5dee5a9468b38a24793a838e, type: 3}
       propertyPath: experimentCode

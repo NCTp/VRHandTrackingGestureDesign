@@ -15,11 +15,11 @@ public class SingleHandGestureWidgetSelector : MonoBehaviour
     }
     public void ThreeFingerUp()
     {
-        _mWidget.ScrollUp();
+        //_mWidget.ScrollUp();
     }
     public void ThreeFingerDown()
     {
-        _mWidget.ScrollDown();
+        //_mWidget.ScrollDown();
     }
     public void TurnWristToFace()
     {
