@@ -42,6 +42,8 @@ public class FingerScrollController : MonoBehaviour
         float ringAngle = GetFingerAngle(HandJointId.HandRing1, HandJointId.HandRing3);
         float pinkyAngle = GetFingerAngle(HandJointId.HandPinky1, HandJointId.HandPinky3);
 
+        _currentFingerAngle = (middleAngle + ringAngle + pinkyAngle) / 3.0f;
+        /*
         // 세 손가락의 평균 각도
         if(isRightHanded)
         {
@@ -51,6 +53,7 @@ public class FingerScrollController : MonoBehaviour
         {
             _currentFingerAngle = -(middleAngle + ringAngle + pinkyAngle) / 3.0f;
         }
+        */
 
         // 2. 상태 머신을 통한 동작 감지
         HandleScrollLogic(_currentFingerAngle);
@@ -112,8 +115,7 @@ public class FingerScrollController : MonoBehaviour
         Vector3 handForward = wristPose.forward; // Oculus Hand의 forward는 보통 손가락 끝 방향
         Vector3 handRight = wristPose.right;     // 회전축 (오른손 기준, 왼손이면 -right 고려 필요)
         
-        // 왼손일 경우 회전축 반전
-        if (_hand.Handedness == Handedness.Left) handRight = -handRight;
+
 
         // 2. 해당 손가락의 벡터 (기저부 -> 끝)
         Vector3 fingerVector = (tipPose.position - knucklePose.position).normalized;

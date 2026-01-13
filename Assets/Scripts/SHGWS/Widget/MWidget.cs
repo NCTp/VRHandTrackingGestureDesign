@@ -7,6 +7,7 @@ public class MWidget : MonoBehaviour
 {
     [SerializeField] private RayInteractor _rayInteractor;
     [SerializeField] private ConeDetector _coneDetector;
+    [SerializeField] private GameObject _rayCanvasInteraction;
     
     [Header("Position Properties")]
     public Vector3 offSet = new Vector3(0f, 0f, 0f);
@@ -36,6 +37,11 @@ public class MWidget : MonoBehaviour
                 {
                     scrollView.SetActive(true);
                 }
+
+                if(_rayCanvasInteraction != null)
+                {
+                    _rayCanvasInteraction.SetActive(true);
+                }
                 
                 this.transform.position = _rayInteractor.Origin + offSet;
 
@@ -50,6 +56,10 @@ public class MWidget : MonoBehaviour
                 {
                     scrollView.SetActive(false);
                     if(scrollRect) scrollRect.verticalNormalizedPosition = 1.0f;
+                }
+                if(_rayCanvasInteraction != null)
+                {
+                    _rayCanvasInteraction.SetActive(false);
                 }
                 ClearItemList();
                 break;
