@@ -323,6 +323,9 @@ public class MoonObjectSpawner : Singleton<MoonObjectSpawner>
         // 선택이 틀렸다면
         if(_moonObjects.Count > 0 && input == false)
         {
+            float duration = Time.time - _generationStartTime;
+            //Debug.LogWarning($"[Result] Task Duration (Generate to Clear): {duration:F4} seconds");
+            ExperimentManager.Instance.SaveTaskCompletionTimeEachTrial(duration);
             ExperimentManager.Instance.AddCount(input);
             _spawnCount -= 1;
 

@@ -12,6 +12,7 @@ public class ExperimentManager : Singleton<ExperimentManager>
     public string experimentCode;
 
     private List<float> tctList = new List<float>();
+    private List<bool> bList = new List<bool>();
     private int _successCount = 0;
     private int _failureCount = 0;
 
@@ -80,11 +81,11 @@ public class ExperimentManager : Singleton<ExperimentManager>
             using (StreamWriter writer = new StreamWriter(filePath, false, Encoding.UTF8))
             {
                 // [섹션 1] Trial 별 상세 데이터
-                writer.WriteLine("Trial_Index,Task_Completion_Time");
+                writer.WriteLine("Trial_Index,Task_Completion_Time,isSuccess");
                 
                 for (int i = 0; i < tctList.Count; i++)
                 {
-                    string line = $"{i + 1},{tctList[i]}";
+                    string line = $"{i + 1},{tctList[i]}, {bList[i]}";
                     writer.WriteLine(line);
                     totalTCT += tctList[i];
                 }
@@ -134,10 +135,12 @@ public class ExperimentManager : Singleton<ExperimentManager>
         if(input == true)
         {
             _successCount += 1;
+            bList.Add(true);
         }
         else
         {
             _failureCount += 1;
+            bList.Add(false);
         }
     }
 }

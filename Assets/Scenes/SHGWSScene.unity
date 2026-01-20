@@ -1116,7 +1116,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 1.5}
+  m_AnchoredPosition: {x: 0, y: 1.75}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1021508421
@@ -1384,7 +1384,7 @@ MonoBehaviour:
   Hand: {fileID: 5597255070260046201}
   _mWidget: {fileID: 890940606}
   _upThreshold: 60
-  _downThreshold: 30
+  _downThreshold: 20
   _resetThreshold: 10
 --- !u!114 &1348236943 stripped
 MonoBehaviour:
@@ -2508,7 +2508,7 @@ MonoBehaviour:
   Hand: {fileID: 8373710036113126173}
   _mWidget: {fileID: 1192191139}
   _upThreshold: 60
-  _downThreshold: 30
+  _downThreshold: 20
   _resetThreshold: 10
 --- !u!114 &2133750927 stripped
 MonoBehaviour:
@@ -2856,11 +2856,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 781947586234407856, guid: 79153ecc5dee5a9468b38a24793a838e, type: 3}
       propertyPath: spawnDensity
-      value: 0
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 781947586234407856, guid: 79153ecc5dee5a9468b38a24793a838e, type: 3}
       propertyPath: experimentCode
-      value: 260109_S
+      value: TEST
       objectReference: {fileID: 0}
     - target: {fileID: 5075522666291537120, guid: 79153ecc5dee5a9468b38a24793a838e, type: 3}
       propertyPath: m_Name
