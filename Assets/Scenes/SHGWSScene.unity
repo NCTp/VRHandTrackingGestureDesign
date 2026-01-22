@@ -1383,9 +1383,11 @@ MonoBehaviour:
   isRightHanded: 1
   Hand: {fileID: 5597255070260046201}
   _mWidget: {fileID: 890940606}
-  _upThreshold: 60
-  _downThreshold: 20
-  _resetThreshold: 10
+  _upThreshold: 70
+  _downThreshold: 30
+  _resetThreshold: 12.5
+  scrollCooldown: 0.2
+  antiReboundTime: 0.2
 --- !u!114 &1348236943 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 3158494810203084665, guid: c7763086fbfc89641b802d9db4c70f7c, type: 3}
@@ -1827,6 +1829,10 @@ PrefabInstance:
     - target: {fileID: 3860579105972228226, guid: 19d4f2fc2c9a0ff448ce5354a3a95fbd, type: 3}
       propertyPath: offSet.x
       value: -0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3860579105972228226, guid: 19d4f2fc2c9a0ff448ce5354a3a95fbd, type: 3}
+      propertyPath: offSet.y
+      value: 0.1
       objectReference: {fileID: 0}
     - target: {fileID: 3860579105972228226, guid: 19d4f2fc2c9a0ff448ce5354a3a95fbd, type: 3}
       propertyPath: scrollbar
@@ -2507,9 +2513,11 @@ MonoBehaviour:
   isRightHanded: 0
   Hand: {fileID: 8373710036113126173}
   _mWidget: {fileID: 1192191139}
-  _upThreshold: 60
-  _downThreshold: 20
-  _resetThreshold: 10
+  _upThreshold: 70
+  _downThreshold: 30
+  _resetThreshold: 12.5
+  scrollCooldown: 0.2
+  antiReboundTime: 0.2
 --- !u!114 &2133750927 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 7322182343802050595, guid: 19d4f2fc2c9a0ff448ce5354a3a95fbd, type: 3}
@@ -2728,6 +2736,10 @@ PrefabInstance:
       value: 0.3333332
       objectReference: {fileID: 0}
     - target: {fileID: 3860579105972228226, guid: 19d4f2fc2c9a0ff448ce5354a3a95fbd, type: 3}
+      propertyPath: offSet.y
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3860579105972228226, guid: 19d4f2fc2c9a0ff448ce5354a3a95fbd, type: 3}
       propertyPath: scrollRect
       value: 
       objectReference: {fileID: 2133750927}
@@ -2852,15 +2864,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 781947586234407856, guid: 79153ecc5dee5a9468b38a24793a838e, type: 3}
       propertyPath: spawnCount
-      value: 5
+      value: 15
       objectReference: {fileID: 0}
     - target: {fileID: 781947586234407856, guid: 79153ecc5dee5a9468b38a24793a838e, type: 3}
       propertyPath: spawnDensity
-      value: 2
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 781947586234407856, guid: 79153ecc5dee5a9468b38a24793a838e, type: 3}
       propertyPath: experimentCode
-      value: TEST
+      value: 012113_S
       objectReference: {fileID: 0}
     - target: {fileID: 5075522666291537120, guid: 79153ecc5dee5a9468b38a24793a838e, type: 3}
       propertyPath: m_Name

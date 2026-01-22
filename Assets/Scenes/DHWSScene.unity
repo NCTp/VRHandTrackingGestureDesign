@@ -169,15 +169,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 781947586234407856, guid: 79153ecc5dee5a9468b38a24793a838e, type: 3}
       propertyPath: spawnCount
-      value: 5
+      value: 15
       objectReference: {fileID: 0}
     - target: {fileID: 781947586234407856, guid: 79153ecc5dee5a9468b38a24793a838e, type: 3}
       propertyPath: spawnDensity
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 781947586234407856, guid: 79153ecc5dee5a9468b38a24793a838e, type: 3}
       propertyPath: experimentCode
-      value: TEST_D
+      value: 012113_D
       objectReference: {fileID: 0}
     - target: {fileID: 5075522666291537120, guid: 79153ecc5dee5a9468b38a24793a838e, type: 3}
       propertyPath: m_Name

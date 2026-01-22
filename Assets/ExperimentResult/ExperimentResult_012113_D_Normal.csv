@@ -1,0 +1,22 @@
+﻿Trial_Index,Task_Completion_Time,isSuccess
+1,9.012001, True
+2,3.944988, True
+3,45.23671, True
+4,3.999794, True
+5,5.292961, True
+6,15.56982, False
+7,8.194061, True
+8,6.986671, False
+9,4.486008, False
+10,3.111053, True
+11,17.1664, True
+12,52.4863, True
+13,4.430527, True
+14,13.83473, True
+15,41.18495, False
+
+Metric,Value
+Average_TCT,15.66246
+Total_Success,11
+Total_Failure,4
+Total_Trials,15
