@@ -24,6 +24,11 @@ public class MWidget : MonoBehaviour
     private int _selectedItemIdx = 0;
     private bool _isItemListGenerated = false;
 
+    void Start()
+    {
+        ClearItemList();
+    }
+
     void Update()
     {
         if (!_rayInteractor) return;

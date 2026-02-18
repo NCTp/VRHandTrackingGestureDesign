@@ -5,12 +5,15 @@ public class CanvasTimer : MonoBehaviour
 {
     public TextMeshProUGUI timerText;
 
-    // 텍스트 업데이트 (소수점 없이 정수로 표시: "3", "2", "1")
+// 텍스트 업데이트
     public void SetTimerText(float input)
     {
-        // "F0": 소수점 없이 반올림, "F1": 소수점 한 자리 (취향에 따라 변경)
-        // CeilToInt를 쓰면 2.1초도 3초로 표시되어 카운트다운 느낌이 더 자연스럽습니다.
-        timerText.text = Mathf.CeilToInt(input).ToString(); 
+        // Mathf.CeilToInt: 2.1초 -> 3초로 올림 처리 (카운트다운에 적합)
+        int count = Mathf.CeilToInt(input);
+
+        // 숫자 + 줄바꿈(\n) + 안내 문구
+        // $"" (문자열 보간) 기능을 사용하면 깔끔하게 합칠 수 있습니다.
+        timerText.text = $"{count}\n<size=50%>선이 빨간색이 되도록 \n 손 제스처를 해제해주세요.</size>";
     }
 
     // 타이머 UI 켜기/끄기

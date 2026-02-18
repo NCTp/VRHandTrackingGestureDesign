@@ -48,6 +48,7 @@ public class MoonObjectSpawner : Singleton<MoonObjectSpawner>
 
     [Header("UI")]
     public CanvasTimer canvasTimer; // [할당 필요] 에디터에서 CanvasTimer가 붙은 오브젝트를 연결하세요.
+    public GameObject mWidget;
 
     void Start()
     {
@@ -208,11 +209,17 @@ public class MoonObjectSpawner : Singleton<MoonObjectSpawner>
             ExperimentManager.Instance.EndExperiment();
         }
     }
-    // [추가됨] 3초 대기 후 생성을 담당하는 코루틴
+// [수정됨] 3초 대기 후 생성을 담당하는 코루틴
     IEnumerator SpawnSequence()
     {
         // 1. 화면 비우기
         ClearObjects(); 
+
+        // [추가됨] 카운트다운 시작 전 위젯 비활성화
+        if (mWidget != null) 
+        {
+            mWidget.SetActive(false);
+        }
 
         // 2. 타이머 UI 켜기
         if(canvasTimer != null) canvasTimer.SetVisible(true);
@@ -237,6 +244,12 @@ public class MoonObjectSpawner : Singleton<MoonObjectSpawner>
 
         // 4. 대기 종료 후 타이머 UI 끄기
         if(canvasTimer != null) canvasTimer.SetVisible(false);
+
+        // [추가됨] 카운트다운 종료 후 위젯 다시 활성화
+        if (mWidget != null) 
+        {
+            mWidget.SetActive(true);
+        }
 
         // 5. 오브젝트 생성 로직 실행
         GenerateObjects(); 
