@@ -2864,7 +2864,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 781947586234407856, guid: 79153ecc5dee5a9468b38a24793a838e, type: 3}
       propertyPath: spawnCount
-      value: 15
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 781947586234407856, guid: 79153ecc5dee5a9468b38a24793a838e, type: 3}
       propertyPath: spawnDensity
@@ -2872,7 +2872,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 781947586234407856, guid: 79153ecc5dee5a9468b38a24793a838e, type: 3}
       propertyPath: experimentCode
-      value: 012113_S
+      value: 030411_S
       objectReference: {fileID: 0}
     - target: {fileID: 5075522666291537120, guid: 79153ecc5dee5a9468b38a24793a838e, type: 3}
       propertyPath: m_Name
